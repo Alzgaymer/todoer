@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.todoer"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.todoer"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -66,4 +66,12 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // The view calendar library
+    implementation ("com.kizitonwose.calendar:view:2.4.0")
+
+    // The compose calendar library
+    implementation ("com.kizitonwose.calendar:compose:2.4.0")
 }
