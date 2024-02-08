@@ -14,11 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.example.todoer.TodoerAppTopBar
-import com.kizitonwose.calendar.compose.WeekCalendar
-import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
-import com.kizitonwose.calendar.core.WeekDay
-import com.kizitonwose.calendar.core.atStartOfMonth
-import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import com.example.todoer.domain.calendar.compose.WeekCalendar
+import com.example.todoer.domain.calendar.compose.weekcalendar.rememberWeekCalendarState
+import com.example.todoer.domain.calendar.core.WeekDay
+import com.example.todoer.domain.calendar.core.atStartOfMonth
+import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -49,9 +49,11 @@ fun WeekCalendarScreen(
         WeekCalendar(
             state = state,
             dayContent = { Day(it)},
-            contentPadding = paddingValues,
+            calendarScrollPaged = true,
+            modifier = Modifier.padding(paddingValues)
         )
-        Text("penis", modifier = Modifier.padding(paddingValues))
+
+
     }
 }
 
