@@ -2,9 +2,7 @@ package com.example.todoer
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -32,22 +30,13 @@ fun TodoerAppTopBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             // arrow back
-            if (canNavigateBack) {
+            if (canNavigateBack)
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back_button)
                     )
                 }
-                // menu icon
-            } else {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = stringResource(R.string.menu_button)
-                    )
-                }
-            }
         }
     )
 }
