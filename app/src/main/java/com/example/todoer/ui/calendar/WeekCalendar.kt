@@ -69,7 +69,7 @@ fun WeekCalendarScreen(
                 }
             }},
             weekHeader = { Text(
-                // TODO: make this function suspended and in viewmodel
+                // TODO: make this function suspendable and in viewmodel
                 getWeekPageTitle(visibleWeek),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.surfaceVariant,
@@ -130,5 +130,11 @@ fun ifSelected(isSelected: Boolean) = when {
 
 @Composable
 fun Todos(todos: List<Todo>) {
+
+}
+
+// TODO: make as a sheet
+@Composable
+fun Todo(todo: Todo) {
 
 }
