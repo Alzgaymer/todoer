@@ -8,4 +8,3 @@ import com.example.todoer.ui.navigation.TodoerNavHost
 fun TodoerApp() {
     TodoerNavHost(rememberNavController())
 }
-
