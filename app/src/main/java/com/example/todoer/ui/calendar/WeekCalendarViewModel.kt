@@ -11,9 +11,11 @@ import com.example.todoer.domain.calendar.core.WeekDay
 import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
@@ -37,14 +39,14 @@ class WeekCalendarViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
         snapshotFlow { visibleWeek }
+            .flowOn(Dispatchers.IO)
             .mapLatest { getWeekPageTitle(it) }
+            .flowOn(Dispatchers.Main)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = "",
             )
-
-
 
     public fun chooseDay(clicked: LocalDate) {
         if (selection != clicked) {
