@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -67,7 +69,18 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.1")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.compose.runtime:runtime:1.6.1")
-
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     //dependency for the navigation.
     implementation ("androidx.navigation:navigation-compose:2.8.0-alpha02")
+
+    val hiltVersion = "2.50"
+    //hilt
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("androidx.hilt:hilt-compiler:1.1.0")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.1.0")
+}
+
+kapt {
+    correctErrorTypes = true
 }

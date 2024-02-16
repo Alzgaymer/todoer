@@ -2,10 +2,14 @@ package com.example.todoer.ui.register
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.todoer.TodoerAppTopBar
+import com.example.todoer.ui.TodoerAppTopBar
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -15,7 +19,8 @@ fun LogInScreen(onSuccess: () -> Unit) {
         topBar = { TodoerAppTopBar(
             canNavigateBack = false,
             scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-        )},
+        )
+        },
         modifier = Modifier.fillMaxSize()
     ) {
         OutlinedButton(

@@ -1,4 +1,4 @@
-package com.example.todoer
+package com.example.todoer.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.todoer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
