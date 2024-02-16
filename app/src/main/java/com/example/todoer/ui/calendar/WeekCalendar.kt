@@ -16,20 +16,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.todoer.TodoerAppTopBar
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoer.domain.calendar.compose.WeekCalendar
 import com.example.todoer.domain.calendar.compose.weekcalendar.rememberWeekCalendarState
-import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import com.example.todoer.domain.todo.Todo
+import com.example.todoer.ui.TodoerAppTopBar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -37,22 +34,23 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun WeekCalendarScreen(
     bottomBar: @Composable () -> Unit,
+    viewModel: WeekCalendarViewModel = hiltViewModel()
 ) {
-    // create state class
-    val currentDate = remember { LocalDate.now() }
-    val startDate = remember { currentDate.minusDays(500) }
-    val endDate = remember { currentDate.plusDays(500) }
-    var selection by remember { mutableStateOf(currentDate) }
-    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
 
     val state = rememberWeekCalendarState(
-        startDate = startDate,
-        endDate = endDate,
-        firstVisibleWeekDate = currentDate,
-        firstDayOfWeek = firstDayOfWeek
+        startDate = viewModel.startDate,
+        endDate = viewModel.endDate,
+        firstVisibleWeekDate = viewModel.currentDate,
+        firstDayOfWeek = viewModel.firstDayOfWeek
     )
-    val visibleWeek = rememberFirstVisibleWeekAfterScroll(state)
+
+    viewModel.visibleWeek = rememberFirstVisibleWeekAfterScroll(state)
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    val weekTitle = viewModel.weekTitle
+        .collectAsStateWithLifecycle("")
+        .value
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -61,16 +59,17 @@ fun WeekCalendarScreen(
         topBar = { TodoerAppTopBar(navigateUp = {}, canNavigateBack = false, scrollBehavior) },
         bottomBar = bottomBar,
     ) { paddingValues ->
+
         WeekCalendar(
             state = state,
-            dayContent = { Day(it.date, isSelected = selection == it.date) { clicked ->
-                if (selection != clicked) {
-                    selection = clicked
-                }
-            }},
+            dayContent = { Day(
+                date = it.date,
+                isSelected = viewModel.selection == it.date,
+                onClick = viewModel::chooseDay
+            ) },
             weekHeader = { Text(
                 // TODO: make this function suspendable and in viewmodel
-                getWeekPageTitle(visibleWeek),
+                text = weekTitle,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.padding(start = 15.dp)
