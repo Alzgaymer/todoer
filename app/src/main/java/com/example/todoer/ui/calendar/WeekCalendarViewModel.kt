@@ -10,6 +10,7 @@ import com.example.todoer.domain.calendar.core.Week
 import com.example.todoer.domain.calendar.core.WeekDay
 import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
+import com.example.todoer.domain.todo.TodosRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
-    //private val
+    private val todosRepository: TodosRepository
 ): ViewModel(){
 
     val currentDate by mutableStateOf( LocalDate.now() )
