@@ -12,14 +12,7 @@ class TodosRepositoryFirestoreImpl (
 ) : TodosRepository {
 
     override suspend fun getTodoes(userID: UUID): List<Todo> = withContext(Dispatchers.IO) {
-        val documentReference = firestore.collection(consts.COLLECTION_PATH)
-        val list: List<Todo> = emptyList()
-
-        try {
-            return list
-        } catch (_: Exception) {
-
-        }
+        TODO("Not yet implemented")
     }
 
     override fun setTodo(userID: UUID, todo: Todo) {
