@@ -23,17 +23,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.todoer.domain.calendar.compose.WeekCalendar
 import com.example.todoer.domain.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.example.todoer.domain.todo.Todo
 import com.example.todoer.ui.TodoerAppTopBar
+import com.example.todoer.ui.navigation.TodoerBottomNavigationBar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeekCalendarScreen(
-    bottomBar: @Composable () -> Unit,
+    navController: NavHostController,
     viewModel: WeekCalendarViewModel = hiltViewModel()
 ) {
 
@@ -57,7 +59,7 @@ fun WeekCalendarScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
         topBar = { TodoerAppTopBar(navigateUp = {}, canNavigateBack = false, scrollBehavior) },
-        bottomBar = bottomBar,
+        bottomBar = { TodoerBottomNavigationBar(navController) },
     ) { paddingValues ->
 
         WeekCalendar(
@@ -68,7 +70,6 @@ fun WeekCalendarScreen(
                 onClick = viewModel::chooseDay
             ) },
             weekHeader = { Text(
-                // TODO: make this function suspendable and in viewmodel
                 text = weekTitle,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.surfaceVariant,

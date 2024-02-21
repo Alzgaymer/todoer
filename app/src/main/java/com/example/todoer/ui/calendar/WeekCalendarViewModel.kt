@@ -49,7 +49,7 @@ class WeekCalendarViewModel @Inject constructor(
                 initialValue = "",
             )
 
-    public fun chooseDay(clicked: LocalDate) {
+    fun chooseDay(clicked: LocalDate) {
         if (selection != clicked) {
             selection = clicked
         }
@@ -58,10 +58,12 @@ class WeekCalendarViewModel @Inject constructor(
     private fun getCurrentWeek(): Week {
         val list = mutableListOf<WeekDay>()
         (0..6).forEach{ index ->
-            list.add(WeekDay(
-                date = LocalDate.now().plusDays(index.toLong()),
-                position = WeekDayPosition.InDate
-            ))
+            list.add(
+                WeekDay(
+                    date = LocalDate.now().plusDays(index.toLong()),
+                    position = WeekDayPosition.InDate
+                )
+            )
         }
 
         return Week(list)

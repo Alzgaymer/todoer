@@ -22,5 +22,4 @@ object AppModule  {
     fun provideFirestoreTodosRepository(firestore: FirebaseFirestore): TodosRepository {
         return TodosRepositoryFirestoreImpl(firestore)
     }
-
 }

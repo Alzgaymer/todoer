@@ -13,7 +13,6 @@ import androidx.navigation.NavHostController
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-
 fun TodoerBottomNavigationBar(navController: NavHostController) {
     //initializing the default selected item
     var navigationSelectedItem by remember {
