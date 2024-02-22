@@ -1,7 +1,7 @@
 package com.example.todoer.ui.navigation
 
 sealed class Screens(val route : String) {
-    object Register : Screens("register")
-    object Calendar : Screens("calendar")
-    object Settings : Screens("settings")
+    data object Auth : Screens("auth")
+    data object Calendar : Screens("calendar")
+    data object Settings : Screens("settings")
 }

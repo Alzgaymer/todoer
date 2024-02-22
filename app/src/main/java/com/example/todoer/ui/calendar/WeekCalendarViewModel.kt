@@ -25,6 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
+    private val userID: String?,
     private val todosRepository: TodosRepository
 ): ViewModel(){
 
@@ -68,4 +69,5 @@ class WeekCalendarViewModel @Inject constructor(
 
         return Week(list)
     }
+
 }

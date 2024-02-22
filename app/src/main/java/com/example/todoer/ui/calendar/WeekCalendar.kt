@@ -76,7 +76,8 @@ fun WeekCalendarScreen(
                 modifier = Modifier.padding(start = 15.dp)
             )},
             weekFooter = {// TODO: make viewmodel getTodos
-                 },
+
+                         },
             contentPadding = paddingValues,
         )
     }
