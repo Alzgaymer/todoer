@@ -6,18 +6,17 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import javax.inject.Inject
 
 class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
 
     private val firestore = Firebase.firestore
 
-    override suspend fun getTodoes(userID: UUID): List<Todo> = withContext(Dispatchers.IO) {
+    override suspend fun getTodoes(userID: String): List<Todo> = withContext(Dispatchers.IO) {
         TODO("Not yet implemented")
     }
 
-    override fun setTodo(userID: UUID, todo: Todo) {
+    override fun setTodo(userID: String, todo: Todo) {
         TODO("Not yet implemented")
     }
 

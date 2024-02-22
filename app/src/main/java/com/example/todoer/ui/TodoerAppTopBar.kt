@@ -1,7 +1,7 @@
 package com.example.todoer.ui
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,15 +23,14 @@ import com.example.todoer.R
 fun TodoerAppTopBar(
     navigateUp: () -> Unit = {},
     canNavigateBack: Boolean,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     CenterAlignedTopAppBar(
         title = {Text(text = stringResource(R.string.app_name), fontFamily = FontFamily.Monospace)},
         colors = topAppBarColors(
         containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
         titleContentColor = MaterialTheme.colorScheme.onPrimary,
-        actionIconContentColor = MaterialTheme.colorScheme.surfaceVariant
-    ),
+        actionIconContentColor = MaterialTheme.colorScheme.surfaceVariant),
         actions = {
             IconButton(onClick = navigateUp) {
                 Icon(
@@ -46,7 +45,7 @@ fun TodoerAppTopBar(
             if (canNavigateBack)
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back_button)
                     )
                 }
