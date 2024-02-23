@@ -79,15 +79,13 @@ class WeekCalendarViewModel @Inject constructor(
     }
 
     fun loadTodoes(date: LocalDate) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                todosRepository.getTodoes(userID ?: "", date)
-                    .collect{ todos ->
-                        withContext(Dispatchers.Main) {
-                            todoes = todos
-                        }
+        viewModelScope.launch (Dispatchers.IO) {
+            todosRepository.getTodoes(userID ?: "", date)
+                .collect{ todos ->
+                    withContext(Dispatchers.Main) {
+                        todoes = todos
                     }
-            }
+                }
         }
     }
 }
