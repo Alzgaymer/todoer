@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +35,8 @@ import androidx.navigation.NavHostController
 import com.example.todoer.domain.calendar.compose.WeekCalendar
 import com.example.todoer.domain.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.example.todoer.domain.todo.Todo
+import com.example.todoer.platform.repositories.todo.TodoDTO
+import com.example.todoer.platform.repositories.todo.toTodo
 import com.example.todoer.ui.TodoerAppTopBar
 import com.example.todoer.ui.navigation.TodoerBottomNavigationBar
 import java.time.LocalDate
@@ -60,6 +63,8 @@ fun WeekCalendarScreen(
         .collectAsStateWithLifecycle("")
         .value
 
+    val todoes by viewModel.todoes.collectAsStateWithLifecycle(listOf(TodoDTO().toTodo()))
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -74,7 +79,7 @@ fun WeekCalendarScreen(
             dayContent = { Day(
                 date = it.date,
                 isSelected = viewModel.selection == it.date,
-                onClick = listOf(viewModel::chooseDay, viewModel::loadTodoes)
+                onClick = viewModel::chooseDay
             ) },
             weekHeader = { Text(
                 text = weekTitle,
@@ -82,7 +87,7 @@ fun WeekCalendarScreen(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.padding(start = 15.dp)
             )},
-            weekFooter = { Todos(todos = viewModel.todoes, paddingValues) },
+            weekFooter = { Todos(todos = todoes, paddingValues) },
             contentPadding = paddingValues,
         )
     }
@@ -90,12 +95,12 @@ fun WeekCalendarScreen(
 private val dateFormatter = DateTimeFormatter.ofPattern("dd")
 
 @Composable
-private fun Day(date: LocalDate, isSelected: Boolean, onClick: List<(LocalDate) -> Unit>) {
+private fun Day(date: LocalDate, isSelected: Boolean, onClick: (LocalDate) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { for (f in onClick) f(date) }
+            .clickable { onClick(date) }
             ,
         contentAlignment = Alignment.Center,
     ) {

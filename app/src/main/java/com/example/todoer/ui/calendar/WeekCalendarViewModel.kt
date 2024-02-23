@@ -20,8 +20,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Named
@@ -42,7 +40,13 @@ class WeekCalendarViewModel @Inject constructor(
     var selection by mutableStateOf( currentDate )
         private set
 
-    var todoes by mutableStateOf<List<Todo>>(emptyList())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    var todoes: Flow<List<Todo>> =
+        snapshotFlow { selection }
+            .flowOn(Dispatchers.IO)
+            .mapLatest { todosRepository.getTodoes(userID?: "", it) }
+            .flowOn(Dispatchers.Main)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
@@ -66,7 +70,7 @@ class WeekCalendarViewModel @Inject constructor(
 
     private fun getCurrentWeek(): Week {
         val list = mutableListOf<WeekDay>()
-        (0..6).forEach{ index ->
+        (0..6).forEach { index ->
             list.add(
                 WeekDay(
                     date = LocalDate.now().plusDays(index.toLong()),
@@ -76,16 +80,5 @@ class WeekCalendarViewModel @Inject constructor(
         }
 
         return Week(list)
-    }
-
-    fun loadTodoes(date: LocalDate) {
-        viewModelScope.launch (Dispatchers.IO) {
-            todosRepository.getTodoes(userID ?: "", date)
-                .collect{ todos ->
-                    withContext(Dispatchers.Main) {
-                        todoes = todos
-                    }
-                }
-        }
     }
 }

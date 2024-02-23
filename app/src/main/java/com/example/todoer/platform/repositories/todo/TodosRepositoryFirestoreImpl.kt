@@ -6,10 +6,6 @@ import com.example.todoer.domain.todo.TodosRepository
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -22,7 +18,10 @@ class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
     private val firestore = Firebase.firestore
     private val todosCollection = firestore.collection(consts.COLLECTION_PATH)
 
-    override suspend fun getTodoes(userID: String, day: LocalDate): Flow<List<Todo>> = flow {
+    override suspend fun getTodoes(
+        userID: String,
+        day: LocalDate
+    ): List<Todo> {
         try {
             val result = todosCollection
                 .whereEqualTo("userID", userID)
@@ -43,7 +42,7 @@ class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
             }
 
             // Emit the list of todos
-            emit(todoList)
+            return todoList
         } catch (e: Exception) {
 
             e.printStackTrace()
@@ -52,9 +51,10 @@ class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
             // Example: Log error
             e.message?.let{ Log.d(consts.TAG, it )}
             // You can emit an empty list or throw the exception depending on your use case
-            emit(emptyList())
+            return emptyList()
         }
-    }.flowOn(Dispatchers.IO)
+    }
+
 
 
     override fun setTodo(userID: String, todo: Todo) {
