@@ -10,6 +10,7 @@ import com.example.todoer.domain.calendar.core.Week
 import com.example.todoer.domain.calendar.core.WeekDay
 import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
+import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodosRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Named
@@ -39,6 +42,8 @@ class WeekCalendarViewModel @Inject constructor(
     var selection by mutableStateOf( currentDate )
         private set
 
+    var todoes by mutableStateOf<List<Todo>>(emptyList())
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
         snapshotFlow { visibleWeek }
@@ -50,6 +55,8 @@ class WeekCalendarViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = "",
             )
+
+
 
     fun chooseDay(clicked: LocalDate) {
         if (selection != clicked) {
@@ -71,4 +78,16 @@ class WeekCalendarViewModel @Inject constructor(
         return Week(list)
     }
 
+    fun loadTodoes(date: LocalDate) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                todosRepository.getTodoes(userID ?: "", date)
+                    .collect{ todos ->
+                        withContext(Dispatchers.Main) {
+                            todoes = todos
+                        }
+                    }
+            }
+        }
+    }
 }
