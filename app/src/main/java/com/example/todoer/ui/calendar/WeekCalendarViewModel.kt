@@ -21,11 +21,12 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Named
 
 
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
-    private val userID: String?,
+    @Named("userID") private val userID: String?,
     private val todosRepository: TodosRepository
 ): ViewModel(){
 
