@@ -12,8 +12,6 @@ import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodosRepository
-import com.example.todoer.platform.repositories.todo.TodoDTO
-import com.example.todoer.platform.repositories.todo.toTodo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,7 +50,7 @@ class WeekCalendarViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = listOf(TodoDTO().toTodo()),
+                initialValue = emptyList(),
             )
 
     @OptIn(ExperimentalCoroutinesApi::class)

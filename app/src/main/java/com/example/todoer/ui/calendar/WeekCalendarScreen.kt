@@ -35,8 +35,6 @@ import androidx.navigation.NavHostController
 import com.example.todoer.domain.calendar.compose.WeekCalendar
 import com.example.todoer.domain.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.example.todoer.domain.todo.Todo
-import com.example.todoer.platform.repositories.todo.TodoDTO
-import com.example.todoer.platform.repositories.todo.toTodo
 import com.example.todoer.ui.TodoerAppTopBar
 import com.example.todoer.ui.navigation.TodoerBottomNavigationBar
 import java.time.LocalDate
@@ -63,7 +61,7 @@ fun WeekCalendarScreen(
         .collectAsStateWithLifecycle("")
         .value
 
-    val todoes by viewModel.todoes.collectAsStateWithLifecycle(listOf(TodoDTO().toTodo()))
+    val todoes by viewModel.todoes.collectAsStateWithLifecycle(emptyList())
 
     Scaffold(
         modifier = Modifier
