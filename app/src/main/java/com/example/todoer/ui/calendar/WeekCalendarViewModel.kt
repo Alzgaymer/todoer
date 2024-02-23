@@ -12,6 +12,8 @@ import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodosRepository
+import com.example.todoer.platform.repositories.todo.TodoDTO
+import com.example.todoer.platform.repositories.todo.toTodo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,6 +49,11 @@ class WeekCalendarViewModel @Inject constructor(
             .flowOn(Dispatchers.IO)
             .mapLatest { todosRepository.getTodoes(userID?: "", it) }
             .flowOn(Dispatchers.Main)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = listOf(TodoDTO().toTodo()),
+            )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
@@ -59,8 +66,6 @@ class WeekCalendarViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = "",
             )
-
-
 
     fun chooseDay(clicked: LocalDate) {
         if (selection != clicked) {
