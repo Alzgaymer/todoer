@@ -3,8 +3,11 @@ package com.example.todoer.platform.repositories.todo
 import com.example.todoer.domain.todo.Todo
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.GeoPoint
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 data class TodoDTO(
     var userID: String? = null,
@@ -13,21 +16,28 @@ data class TodoDTO(
     var remindMeOn: List<Timestamp>? = null,
     var payload: String? = null,
     var location: GeoPoint? = null,
+    var done: Boolean? = false
 )
 
 fun Timestamp.toLocalDate(): LocalDate =
      this.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
+fun Timestamp.toLocalDateTime(): LocalDateTime =
+    LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(this.seconds),
+        ZoneOffset.UTC
+    )
 
 
 
 fun TodoDTO.toTodo(): Todo {
     return Todo(
-        userID ?: "", // If userID is null, set it to an empty string
-        startDate?.toLocalDate() ?: LocalDate.MIN, // Convert startDate to LocalDate or set it to LocalDate.MIN if null
-        endDate?.toLocalDate() ?: LocalDate.MIN, // Convert endDate to LocalDate or set it to LocalDate.MIN if null
-        remindMeOn?.map { it.toLocalDate() } ?: emptyList(), // Convert remindMeOn to List<LocalDate> or set it to an empty list if null
-        payload ?: "", // If payload is null, set it to an empty string
-        //Location() // Location is already nullable, so no conversion needed
+        userID = userID ?: "",
+        startDate = startDate ?: throw Exception("failed to parse start date"),
+        endDate = endDate?: throw Exception("failed to parse end date"),
+        remindMeOn = remindMeOn ?: emptyList(),
+        payload = payload ?: "",
+        //Location()
+        done = done?: false
     )
 }

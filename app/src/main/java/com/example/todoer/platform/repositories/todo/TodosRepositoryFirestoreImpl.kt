@@ -3,9 +3,9 @@ package com.example.todoer.platform.repositories.todo
 import android.util.Log
 import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodosRepository
+import com.example.todoer.domain.todo.toHashMap
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -13,9 +13,9 @@ import java.util.Date
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
-
-    private val firestore = Firebase.firestore
+class TodosRepositoryFirestoreImpl @Inject constructor (
+    private val firestore: FirebaseFirestore
+) : TodosRepository {
     private val todosCollection = firestore.collection(consts.COLLECTION_PATH)
 
     override suspend fun getTodoes(
@@ -58,7 +58,17 @@ class TodosRepositoryFirestoreImpl @Inject constructor () : TodosRepository {
 
 
     override fun setTodo(userID: String, todo: Todo) {
-        TODO("Not yet implemented")
+        val todoMap = todo.toHashMap()
+
+        firestore.collection(consts.COLLECTION_PATH)
+            .document()
+            .set(todoMap)
+            .addOnSuccessListener {
+                println("Todo added successfully!")
+            }
+            .addOnFailureListener { e ->
+                println("Error adding todo: $e")
+            }
     }
 
 
