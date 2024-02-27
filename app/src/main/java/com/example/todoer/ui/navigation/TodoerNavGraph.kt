@@ -84,7 +84,12 @@ fun TodoerNavHost(
 
 
         composable(Screens.Calendar.route) {
-            WeekCalendarScreen(navController)
+            WeekCalendarScreen(
+                onFABClick = {
+
+                },
+                navController = navController
+            )
         }
     }
 }
@@ -92,3 +97,5 @@ fun TodoerNavHost(
 private fun NavHostController.navigateToCalendar() =
     this.navigate(Screens.Calendar.route)
 
+private fun NavHostController.navigateToCreateTodo() =
+    this.navigate(Screens.CreateTodo.route)

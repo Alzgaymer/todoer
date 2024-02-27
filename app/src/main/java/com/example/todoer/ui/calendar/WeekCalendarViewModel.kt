@@ -16,15 +16,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Named
 
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
     @Named("userID") private val userID: String?,
@@ -41,24 +46,32 @@ class WeekCalendarViewModel @Inject constructor(
         private set
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    var todoes: Flow<List<Todo>> =
-        snapshotFlow { selection }
-            .flowOn(Dispatchers.IO)
-            .mapLatest { todosRepository.getTodoes(userID?: "", it) }
-            .flowOn(Dispatchers.Main)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList(),
-            )
+    private val _todoes  = MutableStateFlow<List<Todo>>(emptyList())
+    val todoes = _todoes.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            todosRepository.getTodoes()
+                .flowOn(Dispatchers.IO)
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList(),
+                )
+                .collect {
+                    withContext(Dispatchers.Main){
+                        _todoes.emit(it)
+                    }
+                }
+        }
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
         snapshotFlow { visibleWeek }
-            .flowOn(Dispatchers.IO)
             .mapLatest { getWeekPageTitle(it) }
-            .flowOn(Dispatchers.Main)
+            .flowOn(Dispatchers.IO)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),

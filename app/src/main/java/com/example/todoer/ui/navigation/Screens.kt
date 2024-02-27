@@ -4,4 +4,5 @@ sealed class Screens(val route : String) {
     data object Auth : Screens("auth")
     data object Calendar : Screens("calendar")
     data object Settings : Screens("settings")
+    data object CreateTodo: Screens("todo/create")
 }

@@ -1,10 +1,10 @@
 package com.example.todoer.domain.todo
 
-import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 
 interface TodosRepository {
 
-    suspend fun getTodoes(userID: String, day: LocalDate): List<Todo>
+    suspend fun getTodoes(): Flow<List<Todo>>
 
     fun setTodo(userID: String, todo: Todo)
 }
