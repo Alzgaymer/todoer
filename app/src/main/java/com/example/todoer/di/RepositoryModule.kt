@@ -1,6 +1,6 @@
 package com.example.todoer.di
 
-import com.example.todoer.domain.todo.TodosRepository
+import com.example.todoer.domain.todo.TodoesRepository
 import com.example.todoer.platform.repositories.todo.TodosRepositoryFirestoreImpl
 import dagger.Binds
 import dagger.Module
@@ -19,5 +19,5 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindTodoesRepository(
         repo: TodosRepositoryFirestoreImpl
-    ) : TodosRepository
+    ) : TodoesRepository
 }

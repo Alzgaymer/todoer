@@ -11,7 +11,7 @@ import com.example.todoer.domain.calendar.core.WeekDay
 import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import com.example.todoer.domain.todo.Todo
-import com.example.todoer.domain.todo.TodosRepository
+import com.example.todoer.domain.todo.TodoesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,33 +34,34 @@ import javax.inject.Named
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
     @Named("userID") private val userID: String?,
-    private val todosRepository: TodosRepository
-): ViewModel(){
+    private val todoesRepository: TodoesRepository
+): ViewModel() {
 
-    val currentDate by mutableStateOf( LocalDate.now() )
-    val startDate by mutableStateOf( currentDate.minusDays(500) )
-    val endDate by mutableStateOf( currentDate.plusDays(500) )
-    val firstDayOfWeek by mutableStateOf( firstDayOfWeekFromLocale() )
+    val currentDate by mutableStateOf(LocalDate.now())
+    val startDate by mutableStateOf(currentDate.minusDays(500))
+    val endDate by mutableStateOf(currentDate.plusDays(500))
+    val firstDayOfWeek by mutableStateOf(firstDayOfWeekFromLocale())
 
     var visibleWeek: Week by mutableStateOf(getCurrentWeek())
     var selection by mutableStateOf( currentDate )
         private set
 
 
-    private val _todoes  = MutableStateFlow<List<Todo>>(emptyList())
+    private val _todoes = MutableStateFlow<List<Todo>>(emptyList())
     val todoes = _todoes.asStateFlow()
 
     init {
         viewModelScope.launch {
-            todosRepository.getTodoes()
+            todoesRepository.getTodoes()
                 .flowOn(Dispatchers.IO)
+                .map { it } // TODO: make map limiting date to not load all todoes
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),
                     initialValue = emptyList(),
                 )
                 .collect {
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         _todoes.emit(it)
                     }
                 }

@@ -2,7 +2,7 @@ package com.example.todoer.domain.todo
 
 import kotlinx.coroutines.flow.Flow
 
-interface TodosRepository {
+interface TodoesRepository {
 
     suspend fun getTodoes(): Flow<List<Todo>>
 

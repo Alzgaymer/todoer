@@ -2,11 +2,11 @@ package com.example.todoer.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -30,23 +30,33 @@ fun TodoerAppTopBar(
         colors = topAppBarColors(
         containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
         titleContentColor = MaterialTheme.colorScheme.onPrimary,
-        actionIconContentColor = MaterialTheme.colorScheme.surfaceVariant),
-        actions = {
-            IconButton(onClick = navigateUp) {
-                Icon(
-                    imageVector = Icons.Filled.DateRange,
-                    contentDescription = stringResource(R.string.back_button)
-                )
-            }
-        },
+        actionIconContentColor = MaterialTheme.colorScheme.onPrimary),
+// TODO: make as profile
+//        actions = {
+//            IconButton(onClick = navigateUp) {
+//                Icon(
+//                    imageVector = Icons.Filled.DateRange,
+//                    contentDescription = stringResource(R.string.back_button)
+//                )
+//            }
+//        },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             // arrow back
             if (canNavigateBack)
-                IconButton(onClick = navigateUp) {
+                IconButton(
+                    onClick = navigateUp,
+                    colors = IconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back_button)
+
                     )
                 }
         }

@@ -45,6 +45,7 @@ import com.example.todoer.domain.todo.remindMeOn
 import com.example.todoer.platform.repositories.todo.toLocalDate
 import com.example.todoer.ui.TodoerAppTopBar
 import com.example.todoer.ui.navigation.TodoerBottomNavigationBar
+import com.example.todoer.ui.navigation.navigateToCreateToDo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -52,7 +53,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun WeekCalendarScreen(
     navController: NavHostController,
-    onFABClick: () -> Unit,
     viewModel: WeekCalendarViewModel = hiltViewModel()
 ) {
 
@@ -73,7 +73,9 @@ fun WeekCalendarScreen(
     val todoes by viewModel.todoes.collectAsStateWithLifecycle(emptyList())
 
     Scaffold(
-        floatingActionButton = { CalendarFloatingActionButton(onFABClick) },
+        floatingActionButton = { CalendarFloatingActionButton(onAddClick = {
+                navController.navigateToCreateToDo(viewModel.selection)
+        }) },
         containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
         topBar = { TodoerAppTopBar(navigateUp = {}, canNavigateBack = false, scrollBehavior) },
         bottomBar = { TodoerBottomNavigationBar(navController) },

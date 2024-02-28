@@ -2,7 +2,7 @@ package com.example.todoer.platform.repositories.todo
 
 import android.util.Log
 import com.example.todoer.domain.todo.Todo
-import com.example.todoer.domain.todo.TodosRepository
+import com.example.todoer.domain.todo.TodoesRepository
 import com.example.todoer.domain.todo.toHashMap
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 class TodosRepositoryFirestoreImpl @Inject constructor (
     private val firestore: FirebaseFirestore
-) : TodosRepository {
+) : TodoesRepository {
     private val todosCollection = firestore.collection(consts.COLLECTION_PATH)
 
     override suspend fun getTodoes(): Flow<List<Todo>> = callbackFlow<List<Todo>> {

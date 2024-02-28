@@ -2,10 +2,12 @@ package com.example.todoer.ui.navigation
 
 import android.app.Activity.RESULT_OK
 import android.content.Context
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,8 +21,11 @@ import com.example.todoer.domain.auth.AuthClient
 import com.example.todoer.ui.auth.SignInScreen
 import com.example.todoer.ui.auth.SignInViewModel
 import com.example.todoer.ui.calendar.WeekCalendarScreen
+import com.example.todoer.ui.todo.CreateTodoScreen
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun TodoerNavHost(
     context: Context,
@@ -84,11 +89,15 @@ fun TodoerNavHost(
 
 
         composable(Screens.Calendar.route) {
-            WeekCalendarScreen(
-                onFABClick = {
+            WeekCalendarScreen(navController = navController)
+        }
 
-                },
-                navController = navController
+        composable(Screens.CreateTodo.route) { backStackEntry ->
+            val dateStr = backStackEntry.arguments?.getString("date")
+            val date = LocalDate.parse(dateStr)
+            CreateTodoScreen(
+                date,
+                onBackButton = navController::navigateToCalendar
             )
         }
     }
@@ -97,5 +106,5 @@ fun TodoerNavHost(
 private fun NavHostController.navigateToCalendar() =
     this.navigate(Screens.Calendar.route)
 
-private fun NavHostController.navigateToCreateTodo() =
-    this.navigate(Screens.CreateTodo.route)
+fun NavHostController.navigateToCreateToDo(date: LocalDate) =
+    this.navigate(Screens.CreateTodo.createRoute(date))

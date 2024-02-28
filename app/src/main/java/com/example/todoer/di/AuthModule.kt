@@ -22,7 +22,7 @@ object AuthModule {
         return GoogleAuthClient(
             context,
             Identity.getSignInClient(context)
-            )
+        )
     }
 
     @Provides
