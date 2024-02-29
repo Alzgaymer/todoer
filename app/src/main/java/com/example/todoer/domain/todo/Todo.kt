@@ -7,8 +7,8 @@ import java.time.format.DateTimeFormatter
 
 data class Todo (
     var userID: String,
-    var startDate: Timestamp,
-    var endDate: Timestamp,
+    var startDateTime: Timestamp,
+    var endDateTime: Timestamp,
     var remindMeOn: List<Timestamp>,
     var payload: String,
    // var location: Location?,
@@ -17,8 +17,8 @@ data class Todo (
 
 fun Todo.toHashMap(): HashMap<String, Any> = hashMapOf(
     "userID" to userID,
-    "startDate" to startDate,
-    "endDate" to endDate,
+    "startDate" to startDateTime,
+    "endDate" to endDateTime,
     "remindMeOn" to remindMeOn,
     "payload" to payload,
     "done" to done,
@@ -31,12 +31,12 @@ private val hourFormatter = DateTimeFormatter.ofPattern("hh:mm")
 fun Todo.getFromStartToEndString(): String {
     val stringBuilder = StringBuilder()
 
-    stringBuilder.append(startDate
+    stringBuilder.append(startDateTime
         .toLocalDateTime().toLocalTime().format(hourFormatter))
 
     stringBuilder.append(" - ")
 
-    stringBuilder.append(endDate
+    stringBuilder.append(endDateTime
         .toLocalDateTime().toLocalTime().format(hourFormatter))
 
     return stringBuilder.toString()

@@ -19,7 +19,7 @@ fun getBottomNavigationItems(): List<BottomNavigationItem> = listOf(
         title = "Calendar",
         selectedIcon = Icons.Filled.DateRange,
         unselectedIcon = Icons.Outlined.DateRange,
-        route = Screens.Calendar.route,
+        route = Screens.WeekCalendar.route,
     ),
     BottomNavigationItem(
         title = "Settings",

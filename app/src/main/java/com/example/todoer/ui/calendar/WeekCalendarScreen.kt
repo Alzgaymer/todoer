@@ -168,10 +168,10 @@ fun selection(isSelected: Boolean) = when {
 @Composable
 fun Todos(todos: List<Todo>, selectedDay: LocalDate) {
     val filtered = todos.filter {
-        it.startDate.toLocalDate().atStartOfDay() == selectedDay.atStartOfDay()
+        it.startDateTime.toLocalDate().atStartOfDay() == selectedDay.atStartOfDay()
     }
     LazyColumn{
-        items(items = filtered, key = {todo -> todo.startDate}) { todo ->
+        items(items = filtered, key = {todo -> todo.startDateTime}) { todo ->
             Todo(todo)
         }
     }

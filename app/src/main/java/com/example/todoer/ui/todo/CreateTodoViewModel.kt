@@ -10,10 +10,13 @@ import com.example.todoer.domain.validation.ValidateEndDate
 import com.example.todoer.domain.validation.ValidatePayload
 import com.example.todoer.domain.validation.ValidateRemindMeOn
 import com.example.todoer.domain.validation.ValidateStartDate
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -32,12 +35,28 @@ class CreateTodoViewModel @Inject constructor(
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvents = validationEventChannel.receiveAsFlow()
 
+    private fun mapTimestamp(hours: Int, minutes: Int): Timestamp {
+        val calendar = Calendar.getInstance()
+
+        calendar.set(
+            state.selectedDate.year,
+            state.selectedDate.monthValue,
+            state.selectedDate.dayOfMonth,
+            hours,
+            minutes)
+        calendar.timeZone = TimeZone.getTimeZone("UTC")
+
+        return Timestamp(calendar.time)
+    }
+
     fun onEvent(event: CreateTodoEvent) {
         when(event){
-            is CreateTodoEvent.EndDateChanged -> state = state.copy(endDate = event.endDate)
+            is CreateTodoEvent.EndTimeChanged -> {state = state.copy(
+                endDate = mapTimestamp(event.hours, event.minutes))}
             is CreateTodoEvent.PayloadChanged -> state = state.copy(payload = event.payload)
             is CreateTodoEvent.RemindMeOnChanged -> state = state.copy(remindMeOn = event.remindMeOn)
-            is CreateTodoEvent.StartDateChanged -> state = state.copy(startDate = event.startDate)
+            is CreateTodoEvent.StartTimeChanged -> {state = state.copy(
+                startDate = mapTimestamp(event.hours, event.minutes))}
             is CreateTodoEvent.Submit -> submit()
         }
     }
@@ -71,6 +90,14 @@ class CreateTodoViewModel @Inject constructor(
 
     fun payloadChange(text: String) {
         onEvent(CreateTodoEvent.PayloadChanged(text))
+    }
+
+    fun startTimeChange(hours: Int, minutes: Int) {
+        onEvent(CreateTodoEvent.StartTimeChanged(hours, minutes))
+    }
+
+    fun endTimeChange(hours: Int, minutes: Int) {
+        onEvent(CreateTodoEvent.EndTimeChanged(hours, minutes))
     }
 
 

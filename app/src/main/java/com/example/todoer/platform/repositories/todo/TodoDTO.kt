@@ -33,8 +33,8 @@ fun Timestamp.toLocalDateTime(): LocalDateTime =
 fun TodoDTO.toTodo(): Todo {
     return Todo(
         userID = userID ?: "",
-        startDate = startDate ?: throw Exception("failed to parse start date"),
-        endDate = endDate?: throw Exception("failed to parse end date"),
+        startDateTime = startDate ?: throw Exception("failed to parse start date"),
+        endDateTime = endDate?: throw Exception("failed to parse end date"),
         remindMeOn = remindMeOn ?: emptyList(),
         payload = payload ?: "",
         //Location()
