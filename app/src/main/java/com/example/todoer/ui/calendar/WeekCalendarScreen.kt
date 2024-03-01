@@ -102,7 +102,11 @@ fun WeekCalendarScreen(
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 15.dp)
             )},
-            weekFooter = { Todos(todos = todoes, viewModel.selection) },
+            weekFooter = { Todos(
+                todos = todoes,
+                viewModel.selection in viewModel.visibleWeek,
+                viewModel.selection
+            ) },
             contentPadding = paddingValues,
         )
     }
@@ -170,7 +174,9 @@ fun selection(isSelected: Boolean) = when (isSelected) {
 }
 
 @Composable
-fun Todos(todos: List<Todo>, selectedDay: LocalDate) {
+fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate) {
+    if (!visible) return
+
     val filtered = todos.filter {
         it.startDateTime.toLocalDate().atStartOfDay() == selectedDay.atStartOfDay()
     }

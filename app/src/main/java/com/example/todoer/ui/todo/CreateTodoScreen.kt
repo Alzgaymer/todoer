@@ -5,7 +5,10 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,7 +87,7 @@ fun CreateTodoScreen(
             payloadValueChange = viewModel::payloadChange,
             startDateValueChange = viewModel::startTimeChange,
             endDateValueChange = viewModel::endTimeChange,
-            remindMeOnValueChange = {_,_ ->},
+            remindMeOnValueChange = viewModel::remindmeOnValueChange,
             submitButton = viewModel::submitEvent,
             contentPadding = contentPadding
         )
@@ -103,6 +106,7 @@ fun OnFieldError(error: String?, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun TodoForm(
@@ -139,7 +143,9 @@ fun TodoForm(
         )
 
         Row (
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
             horizontalArrangement = Arrangement.Absolute.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -166,47 +172,40 @@ fun TodoForm(
         }
 
 
-        Row {// Time picker for remind me on
-            var remindMeOnPickerVisible by remember { mutableStateOf(false) }
-            OutlinedTextField(
-                value = state.remindMeOn.joinToString(", ") { it.toString() },
-                onValueChange = {},
-                label = { Text("Remind Me On (Comma-separated)") },
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = contentPadding.calculateTopPadding(),
-                        start = 10.dp,
-                        end = 10.dp
-                    )
-                    .clickable {
-                        remindMeOnPickerVisible = true
-                    }
-            )
-            OnFieldError(
-                error = state.remindMeOnError,
-                modifier = Modifier.align(Alignment.Bottom)
-            )
-            TodoTimePicker(
-                visible = remindMeOnPickerVisible,
-                onDismiss ={ remindMeOnPickerVisible = false},
-                onConfirm = { hours, minutes ->
-                    remindMeOnPickerVisible = false
-                    remindMeOnValueChange(hours, minutes)
+        FlowColumn {
+            for (time in state.remindMeOn
+                .sortedWith(
+                    compareBy({ it.toLocalDateTime().hour },
+                    { it.toLocalDateTime().minute })
+                )
+            ){
+                Box (
+                    Modifier.padding(3.dp)
+                ) {
+                    Text(text = time.toLocalDateTime(dateTimeFormatter))
                 }
-            )
+            }
+            OnFieldError(state.remindMeOnError)
         }
 
+        var remindMeOnTimePickerVisible by remember {mutableStateOf(false)}
         IconButton(
-            // TODO: onRemindMeChange
-            onClick = {},
+
+            onClick = {remindMeOnTimePickerVisible = true},
             //modifier =
         ) {
             Icon(
                 Icons.Filled.Add,
                 contentDescription = stringResource(R.string.add_button)
             )
+
+        }
+        TodoTimePicker(
+            visible = remindMeOnTimePickerVisible,
+            onDismiss = { remindMeOnTimePickerVisible = false},
+        ){ hour, minutes ->
+            remindMeOnValueChange(hour, minutes)
+            remindMeOnTimePickerVisible = false
         }
 
 

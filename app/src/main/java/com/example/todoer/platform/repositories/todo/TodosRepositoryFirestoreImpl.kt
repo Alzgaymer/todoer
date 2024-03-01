@@ -14,7 +14,6 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.isActive
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Date
@@ -26,30 +25,28 @@ class TodosRepositoryFirestoreImpl @Inject constructor (
     private val todosCollection = firestore.collection(consts.COLLECTION_PATH)
 
     override suspend fun getTodoes(): Flow<List<Todo>> = callbackFlow<List<Todo>> {
-        try {
-            todosCollection.addSnapshotListener { snap, e ->
-                e?.let { close(e); return@addSnapshotListener }
+        val listener = todosCollection.addSnapshotListener { snap, e ->
+            e?.let { close(e); return@addSnapshotListener }
 
-                if (snap != null && !snap.isEmpty) {
-                    val list: MutableList<Todo> = mutableListOf()
-                    for (document in snap.documents) {
-                        val todo = document.toObject(TodoDTO::class.java)
-                        todo?.let {
-                                list.add(it.toTodo())
-                            }
+            if (snap != null && !snap.isEmpty) {
+                val list: MutableList<Todo> = mutableListOf()
+                for (document in snap.documents) {
+                    val todo = document.toObject(TodoDTO::class.java)
+                    todo?.let {
+                        list.add(it.toTodo())
                     }
-                    trySendBlocking(list)
                 }
+                trySendBlocking(list)
             }
-
-            while (isActive) {}
-
-            awaitClose()
-        } catch (e: Exception) {
-
+        }
+        try {
+            awaitClose { listener.remove() }
+        }
+        catch (e: CancellationException) {
             e.printStackTrace()
-            if(e is CancellationException) close(e)
-
+            throw e
+        }
+        catch (e: Exception) {
             // Example: Log error
             e.message?.let{ Log.d(consts.TAG, it )}
             // You can emit an empty list or throw the exception depending on your use case
@@ -64,7 +61,7 @@ class TodosRepositoryFirestoreImpl @Inject constructor (
     override fun setTodo(userID: String, todo: Todo) {
         val todoMap = todo.toHashMap()
 
-        firestore.collection(consts.COLLECTION_PATH)
+       todosCollection
             .document()
             .set(todoMap)
             .addOnSuccessListener {

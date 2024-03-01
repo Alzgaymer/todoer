@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodoesRepository
 import com.example.todoer.domain.validation.ValidateEndDate
 import com.example.todoer.domain.validation.ValidatePayload
@@ -54,13 +55,22 @@ class CreateTodoViewModel @Inject constructor(
             is CreateTodoEvent.EndTimeChanged -> {state = state.copy(
                 endDate = mapTimestamp(event.hours, event.minutes))}
             is CreateTodoEvent.PayloadChanged -> state = state.copy(payload = event.payload)
-            is CreateTodoEvent.RemindMeOnChanged -> state = state.copy(remindMeOn = event.remindMeOn)
+            is CreateTodoEvent.RemindMeOnChanged -> {
+                state = state.copy(remindMeOn = append(state.remindMeOn,
+                    mapTimestamp(event.hours, event.minutes)))
+            }
             is CreateTodoEvent.StartTimeChanged -> {state = state.copy(
                 startDate = mapTimestamp(event.hours, event.minutes))}
             is CreateTodoEvent.Submit -> submit()
         }
     }
 
+    private fun <T> append (list: List<T>, value: T): List<T> {
+        return list + value
+    }
+
+    // TODO: create function to delete reminds me on
+    // FIXME: validate remind me on dates
     private fun submit() {
         val payloadResult = validatePayload.validate(state.payload)
         val startDateResult = validateStartDate.validate(state.startDate, state.endDate)
@@ -86,6 +96,15 @@ class CreateTodoViewModel @Inject constructor(
             false -> {
                 viewModelScope.launch {
                     validationEventChannel.send(ValidationEvent.Success)
+                    todoesRepository.setTodo(userID ?: "", Todo(
+                        userID = userID ?: "",
+                        startDateTime =state.startDate,
+                        endDateTime =state.endDate,
+                        remindMeOn =state.remindMeOn,
+                        payload =state.payload,
+                        done = false
+                    )
+                    )
                 }
             }
         }
@@ -107,6 +126,10 @@ class CreateTodoViewModel @Inject constructor(
 
     fun submitEvent() {
         onEvent(CreateTodoEvent.Submit)
+    }
+
+    fun remindmeOnValueChange(hour: Int, minutes: Int) {
+        onEvent(CreateTodoEvent.RemindMeOnChanged(hour, minutes))
     }
 
     sealed class ValidationEvent {

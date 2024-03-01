@@ -2,6 +2,7 @@ package com.example.todoer.domain.calendar.core
 
 import androidx.compose.runtime.Immutable
 import java.io.Serializable
+import java.time.LocalDate
 
 /**
  * Represents a week on the week-based calendar.
@@ -33,5 +34,9 @@ data class Week(val days: List<WeekDay>) : Serializable {
             "first = ${days.first()}, " +
             "last = ${days.last()} " +
             "} "
+    }
+
+    operator fun contains(day: LocalDate): Boolean {
+        return days.any{ it.date.atStartOfDay().equals(day.atStartOfDay())}
     }
 }
