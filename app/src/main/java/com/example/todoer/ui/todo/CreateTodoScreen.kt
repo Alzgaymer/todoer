@@ -4,6 +4,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,10 +12,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,15 +32,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.todoer.R
 import com.example.todoer.platform.repositories.todo.toLocalDateTime
 import com.example.todoer.ui.TodoerAppTopBar
+import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -65,7 +77,7 @@ fun CreateTodoScreen(
             canNavigateBack = true,
             navigateUp = onBackButton,
             scrollBehavior = scrollBehavior
-        )}
+        )},
     ) { contentPadding ->
         TodoForm(
             state = state,
@@ -73,6 +85,7 @@ fun CreateTodoScreen(
             startDateValueChange = viewModel::startTimeChange,
             endDateValueChange = viewModel::endTimeChange,
             remindMeOnValueChange = {_,_ ->},
+            submitButton = viewModel::submitEvent,
             contentPadding = contentPadding
         )
     }
@@ -85,7 +98,6 @@ fun OnFieldError(error: String?, modifier: Modifier = Modifier) {
     error?.let { error ->
         Text(
             text = error,
-            color = MaterialTheme.colorScheme.onError,
             modifier = modifier
         )
     }
@@ -99,6 +111,7 @@ fun TodoForm(
     startDateValueChange: (Int,Int) -> Unit,
     endDateValueChange: (Int,Int) -> Unit,
     remindMeOnValueChange: (Int,Int) -> Unit,
+    submitButton: () -> Unit,
     contentPadding: PaddingValues
 ) {
     Column {
@@ -107,8 +120,10 @@ fun TodoForm(
             value = state.payload,
             onValueChange = payloadValueChange,
             isError = state.payloadError != null,
-            placeholder = { Text(text = "Todo") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            label = { Text(text = "Todo") },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email),
+            supportingText = {OnFieldError(error = state.payloadError)},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -116,65 +131,43 @@ fun TodoForm(
                     start = 10.dp,
                     end = 10.dp
                 ),
+            colors = OutlinedTextFieldDefaults.colors(
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorContainerColor = MaterialTheme.colorScheme.errorContainer,
+                errorSupportingTextColor = MaterialTheme.colorScheme.error,
+            )
         )
-        OnFieldError(error = state.payloadError)
 
-        Row {
-            // Time picker for start date
-            var startTimePickerState by remember {mutableStateOf(TodoTimePickerState())}
-            OutlinedTextField(
-                value = dateTimeFormatter.format(state.startDate.toLocalDateTime()) ,
-                onValueChange = {},
-                label = { Text("Start Time") },
-                readOnly = true,
-                modifier = Modifier
-                    .width(150.dp)
-                    .padding(
-                        start = 10.dp,
-                        end = 10.dp
-                    )
-                    .clickable {
-                        startTimePickerState = startTimePickerState.copy(visible = true)
-                    }
-            )
-            OnFieldError(error = state.startDateError,
-                modifier = Modifier.align(Alignment.Bottom)
-            )
-
-
-            TimePicker(startTimePickerState) { hours, minutes ->
-                startTimePickerState = startTimePickerState.copy(visible = false)
-                startDateValueChange(hours, minutes)
+        Row (
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Column(
+                horizontalAlignment = AbsoluteAlignment.Right
+            ) {
+                TodoTimePickerField(
+                    text = "Start time",
+                    timestamp = state.startDate,
+                    error = state.startDateError,
+                    onTimeChanged = startDateValueChange
+                )
             }
-
-            // Time picker for end date
-            val endDatePickerState by remember { mutableStateOf(TodoTimePickerState()) }
-            OutlinedTextField(
-                value = dateTimeFormatter.format(state.endDate.toLocalDateTime()),
-                onValueChange = {},
-                label = { Text("End Time") },
-                readOnly = true,
-                modifier = Modifier
-                    .width(150.dp)
-                    .padding(
-                        start = 10.dp,
-                        end = 10.dp
-                    )
-                    .clickable {
-                        endDatePickerState.visible = true
-                    }
-            )
-            OnFieldError(error = state.endDateError,
-                modifier = Modifier.align(Alignment.Bottom)
-            )
-            TimePicker(endDatePickerState) { hours, minutes ->
-                endDatePickerState.visible = false
-                endDateValueChange(hours, minutes)
+            Column(
+                horizontalAlignment = AbsoluteAlignment.Left
+            ) {
+                TodoTimePickerField(
+                    text = "End time",
+                    timestamp = state.endDate,
+                    error = state.endDateError,
+                    onTimeChanged = endDateValueChange
+                )
             }
         }
 
+
         Row {// Time picker for remind me on
-            val remindMeOnPickerState by remember { mutableStateOf(TodoTimePickerState()) }
+            var remindMeOnPickerVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = state.remindMeOn.joinToString(", ") { it.toString() },
                 onValueChange = {},
@@ -188,29 +181,88 @@ fun TodoForm(
                         end = 10.dp
                     )
                     .clickable {
-                        remindMeOnPickerState.visible = true
+                        remindMeOnPickerVisible = true
                     }
             )
             OnFieldError(
                 error = state.remindMeOnError,
                 modifier = Modifier.align(Alignment.Bottom)
             )
-            TimePicker(remindMeOnPickerState) { hours, minutes ->
-                remindMeOnPickerState.visible = false
-                remindMeOnValueChange(hours, minutes)
-            }
+            TodoTimePicker(
+                visible = remindMeOnPickerVisible,
+                onDismiss ={ remindMeOnPickerVisible = false},
+                onConfirm = { hours, minutes ->
+                    remindMeOnPickerVisible = false
+                    remindMeOnValueChange(hours, minutes)
+                }
+            )
+        }
+
+        IconButton(
+            // TODO: onRemindMeChange
+            onClick = {},
+            //modifier =
+        ) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = stringResource(R.string.add_button)
+            )
+        }
+
+
+        TextButton(onClick = submitButton) {
+            Text("Submit")
         }
 
     }
 }
 
+@Composable
+private fun TodoTimePickerField(
+    text: String,
+    timestamp: Timestamp,
+    error: String?,
+    onTimeChanged: (Int, Int) -> Unit
+) {
+
+    var visibleTimePicker by remember { mutableStateOf(false) }
+    OutlinedTextField(
+        value = timestamp.toLocalDateTime(dateTimeFormatter),
+        onValueChange = {},
+        label = { Text(text) },
+        readOnly = true,
+        isError = error != null,
+        supportingText = {OnFieldError(error = error)},
+        modifier = Modifier
+            .width(200.dp)
+            .padding(
+                start = 10.dp,
+                end = 10.dp
+            )
+            .clickable {
+                visibleTimePicker = true
+            },
+    )
+
+    TodoTimePicker(
+        visible = visibleTimePicker,
+        onDismiss = { visibleTimePicker = false },
+        onConfirm = { hours, minutes ->
+            visibleTimePicker = false
+            onTimeChanged(hours, minutes)
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimePicker(
-    state: TodoTimePickerState,
-    onTimeSelected: (Int, Int) -> Unit
+fun TodoTimePicker(
+    visible: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit,
 ) {
-    if (state.visible) {
+    val coroutineScope = rememberCoroutineScope()
+    if (visible){
         val now = LocalDateTime.now()
         val timePickerState = rememberTimePickerState(
             initialHour = now.hour,
@@ -219,10 +271,10 @@ fun TimePicker(
         )
 
         DatePickerDialog(
-            onDismissRequest = {state.visible = false},
+            onDismissRequest = onDismiss,
             dismissButton = {
                 TextButton(
-                    onClick = {state.visible = false}
+                    onClick = onDismiss
                 ) {
                     Text("Cancel")
                 }
@@ -230,12 +282,12 @@ fun TimePicker(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        state.visible = false
-                        onTimeSelected(
-                            timePickerState.hour,
-                            timePickerState.minute
-                        )
-
+                        coroutineScope.launch {
+                            onConfirm(
+                                timePickerState.hour,
+                                timePickerState.minute
+                            )
+                        }
                     },
                 ) {
                     Text("OK")

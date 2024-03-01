@@ -20,20 +20,21 @@ fun TodoerBottomNavigationBar(navController: NavHostController) {
     }
 
     NavigationBar (
-        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         //getting the list of bottom navigation items for our data class
         getBottomNavigationItems().forEachIndexed { index, navigationItem ->
             //iterating all items with their respective indexes
             NavigationBarItem(
                 colors = NavigationBarItemColors(
-                    selectedIconColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedTextColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
                     selectedIndicatorColor = MaterialTheme.colorScheme.primary,
                     disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedIconColor = MaterialTheme.colorScheme.onBackground,
+                    unselectedTextColor = MaterialTheme.colorScheme.onBackground,
                 ),
                 selected = index == navigationSelectedItem,
                 label = {

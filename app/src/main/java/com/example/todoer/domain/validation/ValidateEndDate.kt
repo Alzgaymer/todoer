@@ -6,7 +6,10 @@ import com.google.firebase.Timestamp
 class ValidateEndDate {
 
     fun validate(startDate: Timestamp, endDate: Timestamp): ValidationResult {
-        if (endDate.toLocalDateTime().isBefore(endDate.toLocalDateTime()))
+        if (startDate.equals(endDate))
+            return ValidationResult(error = "End time shouldn`t be equal as start time")
+
+        if (endDate.toLocalDateTime().isBefore(startDate.toLocalDateTime()))
             return ValidationResult(error = "end time can`t be before start time")
 
         return ValidationResult(successful = true)

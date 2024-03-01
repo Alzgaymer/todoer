@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 data class TodoDTO(
     var userID: String? = null,
@@ -27,6 +28,12 @@ fun Timestamp.toLocalDateTime(): LocalDateTime =
         Instant.ofEpochSecond(this.seconds),
         ZoneOffset.UTC
     )
+
+fun Timestamp.toLocalDateTime(formatter: DateTimeFormatter): String =
+    formatter.format(LocalDateTime.ofInstant(
+        Instant.ofEpochSecond(this.seconds),
+        ZoneOffset.UTC
+    ))
 
 
 

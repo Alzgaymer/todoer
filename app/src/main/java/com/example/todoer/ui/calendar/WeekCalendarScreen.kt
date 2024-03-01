@@ -76,8 +76,13 @@ fun WeekCalendarScreen(
         floatingActionButton = { CalendarFloatingActionButton(onAddClick = {
                 navController.navigateToCreateToDo(viewModel.selection)
         }) },
-        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        topBar = { TodoerAppTopBar(navigateUp = {}, canNavigateBack = false, scrollBehavior) },
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        topBar = { TodoerAppTopBar(
+            navigateUp = {},
+            canNavigateBack = false,
+            scrollBehavior
+        ) },
         bottomBar = { TodoerBottomNavigationBar(navController) },
         modifier = Modifier
             .fillMaxSize()
@@ -94,7 +99,7 @@ fun WeekCalendarScreen(
             weekHeader = { Text(
                 text = weekTitle,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 15.dp)
             )},
             weekFooter = { Todos(todos = todoes, viewModel.selection) },
@@ -125,8 +130,7 @@ private fun Day(date: LocalDate, isSelected: Boolean, onClick: (LocalDate) -> Un
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClick(date) }
-            ,
+            .clickable { onClick(date) },
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -160,9 +164,9 @@ private fun Day(date: LocalDate, isSelected: Boolean, onClick: (LocalDate) -> Un
 }
 
 @Composable
-fun selection(isSelected: Boolean) = when {
-    isSelected -> MaterialTheme.colorScheme.primaryContainer
-    else -> MaterialTheme.colorScheme.surfaceVariant
+fun selection(isSelected: Boolean) = when (isSelected) {
+    true -> MaterialTheme.colorScheme.primary
+    false-> MaterialTheme.colorScheme.onBackground
 }
 
 @Composable

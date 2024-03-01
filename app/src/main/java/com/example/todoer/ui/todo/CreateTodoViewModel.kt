@@ -74,17 +74,22 @@ class CreateTodoViewModel @Inject constructor(
             remindMeOnResult
         ).any { !it.successful }
 
-        if (hasError){
-            state = state.copy(
-                payloadError = payloadResult.error,
-                startDateError = startDateResult.error,
-                endDateError = endDateResult.error,
-                remindMeOnError = remindMeOnResult.error
-            )
+        when(hasError) {
+             true -> {
+                state = state.copy(
+                    payloadError = payloadResult.error,
+                    startDateError = startDateResult.error,
+                    endDateError = endDateResult.error,
+                    remindMeOnError = remindMeOnResult.error
+                )
+            }
+            false -> {
+                viewModelScope.launch {
+                    validationEventChannel.send(ValidationEvent.Success)
+                }
+            }
         }
-        viewModelScope.launch {
-            validationEventChannel.send(ValidationEvent.Success)
-        }
+
 
     }
 
@@ -100,6 +105,9 @@ class CreateTodoViewModel @Inject constructor(
         onEvent(CreateTodoEvent.EndTimeChanged(hours, minutes))
     }
 
+    fun submitEvent() {
+        onEvent(CreateTodoEvent.Submit)
+    }
 
     sealed class ValidationEvent {
         data object Success: ValidationEvent()

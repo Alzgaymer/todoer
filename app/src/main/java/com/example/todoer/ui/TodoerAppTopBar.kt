@@ -2,6 +2,7 @@ package com.example.todoer.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,18 +29,18 @@ fun TodoerAppTopBar(
     CenterAlignedTopAppBar(
         title = {Text(text = stringResource(R.string.app_name), fontFamily = FontFamily.Monospace)},
         colors = topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-        actionIconContentColor = MaterialTheme.colorScheme.onPrimary),
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
+        actionIconContentColor = MaterialTheme.colorScheme.onBackground),
 // TODO: make as profile
-//        actions = {
-//            IconButton(onClick = navigateUp) {
-//                Icon(
-//                    imageVector = Icons.Filled.DateRange,
-//                    contentDescription = stringResource(R.string.back_button)
-//                )
-//            }
-//        },
+        actions = {
+            IconButton(onClick = {  }) {
+                Icon(
+                    imageVector = Icons.Outlined.DateRange,
+                    contentDescription = stringResource(R.string.back_button)
+                )
+            }
+        },
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             // arrow back
@@ -47,10 +48,10 @@ fun TodoerAppTopBar(
                 IconButton(
                     onClick = navigateUp,
                     colors = IconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                        disabledContainerColor = MaterialTheme.colorScheme.background,
+                        disabledContentColor = MaterialTheme.colorScheme.onBackground,
                     )
                 ) {
                     Icon(
