@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,8 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -191,18 +192,9 @@ fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate) {
 @Composable
 fun Todo(todo: Todo) {
     Card(
-        onClick = {
-
-        },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardColors(
-            containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.tertiary,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+        onClick = {todo.done = !todo.done},
+        shape = RoundedCornerShape(8.dp),        
         elevation = CardDefaults.elevatedCardElevation(),
-        enabled = todo.done,
         modifier = Modifier
             .padding(8.dp)
     ) {
@@ -210,11 +202,14 @@ fun Todo(todo: Todo) {
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            Text(
-                text = todo.payload,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            Row {
+                Text(
+                    text = todo.payload,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Checkbox(checked = todo.done, onCheckedChange = {})
+            }
             Text(
                 text = todo.getFromStartToEndString(),
                 style = MaterialTheme.typography.bodyLarge,

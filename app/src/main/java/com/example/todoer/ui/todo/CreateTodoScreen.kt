@@ -36,12 +36,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
@@ -131,6 +131,7 @@ fun TodoForm(
     contentPadding: PaddingValues
 ) {
     Column {
+        // TODO: write text "Create TODO"  https://proandroiddev.com/creating-a-form-using-jetpack-compose-and-material-design-6e18bc63b3d1
         // Payload
         OutlinedTextField(
             value = state.payload,
@@ -206,10 +207,6 @@ fun TodoForm(
             OutlinedCard(
                 elevation = CardDefaults.elevatedCardElevation(
                     defaultElevation = 10.dp
-                ),
-                colors = CardDefaults.outlinedCardColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = roundedCornerShape,
                 modifier = Modifier.padding(16.dp),
@@ -372,14 +369,14 @@ fun TodoTimePicker(
         DatePickerDialog(
             onDismissRequest = onDismiss,
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = onDismiss
                 ) {
                     Text("Cancel")
                 }
             },
             confirmButton = {
-                TextButton(
+                ElevatedButton(
                     onClick = {
                         coroutineScope.launch {
                             onConfirm(
