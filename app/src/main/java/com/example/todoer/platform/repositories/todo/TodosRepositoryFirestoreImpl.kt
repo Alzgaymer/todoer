@@ -60,8 +60,7 @@ class TodosRepositoryFirestoreImpl @Inject constructor (
 
     override fun setTodo(userID: String, todo: Todo) {
         val todoMap = todo.toHashMap()
-
-       todosCollection
+        todosCollection
             .document()
             .set(todoMap)
             .addOnSuccessListener {
