@@ -179,7 +179,8 @@ fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate) {
 
     val filtered = todos.filter {
         it.startDateTime.toLocalDate().atStartOfDay() == selectedDay.atStartOfDay()
-    }
+    }.sortedBy { it.startDateTime }
+
     LazyColumn{
         items(items = filtered, key = {todo -> todo.startDateTime}) { todo ->
             Todo(todo)

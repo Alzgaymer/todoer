@@ -25,7 +25,7 @@ fun Todo.toHashMap(): HashMap<String, Any> = hashMapOf(
 )
 
 
-private val hourFormatter = DateTimeFormatter.ofPattern("hh:mm")
+private val hourFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 
 fun Todo.getFromStartToEndString(): String {
@@ -43,5 +43,5 @@ fun Todo.getFromStartToEndString(): String {
 }
 
 fun Todo.remindMeOn(): String = remindMeOn.joinToString {
-        it.toLocalDateTime().toLocalTime().format(hourFormatter)
-    }
+    it.toLocalDateTime().toLocalTime().format(hourFormatter)
+}

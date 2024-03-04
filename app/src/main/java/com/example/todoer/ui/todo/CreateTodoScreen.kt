@@ -17,8 +17,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,9 +48,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.todoer.R
@@ -52,7 +62,6 @@ import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,10 +79,12 @@ fun CreateTodoScreen(
             when (event) {
                 is CreateTodoViewModel.ValidationEvent.Success -> {
                     Toast.makeText(context,"Todo created!", Toast.LENGTH_LONG).show()
+                    onBackButton()
                 }
             }
         }
     }
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold (
         topBar = { TodoerAppTopBar(
@@ -81,6 +92,10 @@ fun CreateTodoScreen(
             navigateUp = onBackButton,
             scrollBehavior = scrollBehavior
         )},
+        floatingActionButton = { FloatingActionButton(onClick = viewModel::submitEvent) {
+            Icon(imageVector = Icons.Filled.Check, contentDescription = null)
+        }},
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
         TodoForm(
             state = state,
@@ -88,20 +103,8 @@ fun CreateTodoScreen(
             startDateValueChange = viewModel::startTimeChange,
             endDateValueChange = viewModel::endTimeChange,
             remindMeOnValueChange = viewModel::remindmeOnValueChange,
-            submitButton = viewModel::submitEvent,
+            remindMeOnDeleteValue = viewModel::remindmeOnDelete,
             contentPadding = contentPadding
-        )
-    }
-}
-
-private val dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-@Composable
-fun OnFieldError(error: String?, modifier: Modifier = Modifier) {
-    error?.let { error ->
-        Text(
-            text = error,
-            modifier = modifier
         )
     }
 }
@@ -115,7 +118,7 @@ fun TodoForm(
     startDateValueChange: (Int,Int) -> Unit,
     endDateValueChange: (Int,Int) -> Unit,
     remindMeOnValueChange: (Int,Int) -> Unit,
-    submitButton: () -> Unit,
+    remindMeOnDeleteValue: (Timestamp) -> Unit,
     contentPadding: PaddingValues
 ) {
     Column {
@@ -171,46 +174,116 @@ fun TodoForm(
             }
         }
 
-
-        FlowColumn {
-            for (time in state.remindMeOn
-                .sortedWith(
-                    compareBy({ it.toLocalDateTime().hour },
-                    { it.toLocalDateTime().minute })
-                )
-            ){
-                Box (
-                    Modifier.padding(3.dp)
-                ) {
-                    Text(text = time.toLocalDateTime(dateTimeFormatter))
-                }
-            }
-            OnFieldError(state.remindMeOnError)
-        }
-
-        var remindMeOnTimePickerVisible by remember {mutableStateOf(false)}
-        IconButton(
-
-            onClick = {remindMeOnTimePickerVisible = true},
-            //modifier =
-        ) {
-            Icon(
-                Icons.Filled.Add,
-                contentDescription = stringResource(R.string.add_button)
+        var remindMeOnVisible by remember { mutableStateOf(true)}
+        Row {
+            Text(
+                text = stringResource(id = R.string.remind_me_on),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(10.dp),
             )
-
-        }
-        TodoTimePicker(
-            visible = remindMeOnTimePickerVisible,
-            onDismiss = { remindMeOnTimePickerVisible = false},
-        ){ hour, minutes ->
-            remindMeOnValueChange(hour, minutes)
-            remindMeOnTimePickerVisible = false
+            IconButton(onClick = { remindMeOnVisible = !remindMeOnVisible }) {
+                if (remindMeOnVisible)
+                    Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = null)
+                else
+                    Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = null)
+            }
         }
 
+        if (remindMeOnVisible) {
+            FlowColumn(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                for (time in state.remindMeOn
+                    .sortedWith(
+                        compareBy({ it.toLocalDateTime().hour },
+                            { it.toLocalDateTime().minute })
+                    )
+                ) {
+                    Box(
+                        Modifier.padding(3.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = time.toLocalDateTime(dateTimeFormatter),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(10.dp)
+                            )
 
-        TextButton(onClick = submitButton) {
-            Text("Submit")
+                            Row {
+                                // edit
+                                var reminMeOnEditTimeVisible by remember { mutableStateOf(false) }
+                                IconButton(
+                                    onClick = {reminMeOnEditTimeVisible = true},
+                                    modifier = Modifier
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Edit,
+                                        stringResource(id = R.string.icon_edit)
+                                    )
+                                }
+
+                                TodoTimePicker(
+                                    visible = reminMeOnEditTimeVisible,
+                                    onDismiss = { reminMeOnEditTimeVisible = false },
+                                    onConfirm = { h, m ->
+                                        remindMeOnDeleteValue(time)
+                                        remindMeOnValueChange(h, m)
+                                        reminMeOnEditTimeVisible = false
+                                    }
+                                )
+
+                                // delete
+                                IconButton(
+                                    onClick = { remindMeOnDeleteValue(time) },
+                                    modifier = Modifier
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Clear,
+                                        stringResource(id = R.string.icon_clear)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                OnFieldError(
+                    state.remindMeOnError,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+            var remindMeOnTimePickerVisible by remember {mutableStateOf(false)}
+            ElevatedButton(
+                onClick = {remindMeOnTimePickerVisible = true},
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = 10.dp,
+                        bottom = 10.dp,
+                        start = 100.dp,
+                        end = 100.dp
+                    )
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.add_button)
+                )
+
+            }
+            TodoTimePicker(
+                visible = remindMeOnTimePickerVisible,
+                onDismiss = { remindMeOnTimePickerVisible = false},
+            ){ hour, minutes ->
+                remindMeOnValueChange(hour, minutes)
+                remindMeOnTimePickerVisible = false
+            }
         }
 
     }

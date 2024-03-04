@@ -40,33 +40,41 @@ class CreateTodoViewModel @Inject constructor(
         val calendar = Calendar.getInstance()
 
         calendar.set(
-            state.selectedDate.year,
-            state.selectedDate.monthValue,
-            state.selectedDate.dayOfMonth,
-            hours,
-            minutes)
+            /* year = */ state.selectedDate.year,
+            /* month = */ state.selectedDate.monthValue-1, // -1 because month value start from 0 not 1
+            /* date = */ state.selectedDate.dayOfMonth,
+            /* hourOfDay = */ hours,
+            /* minute = */ minutes)
         calendar.timeZone = TimeZone.getTimeZone("UTC")
 
         return Timestamp(calendar.time)
     }
 
     fun onEvent(event: CreateTodoEvent) {
-        when(event){
-            is CreateTodoEvent.EndTimeChanged -> {state = state.copy(
-                endDate = mapTimestamp(event.hours, event.minutes))}
+        when (event) {
+            is CreateTodoEvent.EndTimeChanged -> {
+                state = state.copy(
+                    endDate = mapTimestamp(event.hours, event.minutes)
+                )
+            }
+
             is CreateTodoEvent.PayloadChanged -> state = state.copy(payload = event.payload)
             is CreateTodoEvent.RemindMeOnChanged -> {
-                state = state.copy(remindMeOn = append(state.remindMeOn,
-                    mapTimestamp(event.hours, event.minutes)))
+                state = state.copy(
+                    remindMeOn = state.remindMeOn +mapTimestamp(event.hours, event.minutes))
             }
-            is CreateTodoEvent.StartTimeChanged -> {state = state.copy(
-                startDate = mapTimestamp(event.hours, event.minutes))}
-            is CreateTodoEvent.Submit -> submit()
-        }
-    }
 
-    private fun <T> append (list: List<T>, value: T): List<T> {
-        return list + value
+            is CreateTodoEvent.StartTimeChanged -> {
+                state = state.copy(
+                    startDate = mapTimestamp(event.hours, event.minutes)
+                )
+            }
+
+            is CreateTodoEvent.Submit -> submit()
+            is CreateTodoEvent.ReminMeOnDelete -> {
+                state = state.copy(remindMeOn = state.remindMeOn - event.timestamp)
+            }
+        }
     }
 
     // TODO: create function to delete reminds me on
@@ -98,10 +106,10 @@ class CreateTodoViewModel @Inject constructor(
                     validationEventChannel.send(ValidationEvent.Success)
                     todoesRepository.setTodo(userID ?: "", Todo(
                         userID = userID ?: "",
-                        startDateTime =state.startDate,
-                        endDateTime =state.endDate,
-                        remindMeOn =state.remindMeOn,
-                        payload =state.payload,
+                        startDateTime = state.startDate,
+                        endDateTime = state.endDate,
+                        remindMeOn = state.remindMeOn,
+                        payload = state.payload,
                         done = false
                     )
                     )
@@ -130,6 +138,10 @@ class CreateTodoViewModel @Inject constructor(
 
     fun remindmeOnValueChange(hour: Int, minutes: Int) {
         onEvent(CreateTodoEvent.RemindMeOnChanged(hour, minutes))
+    }
+
+    fun remindmeOnDelete(timestamp: Timestamp) {
+        onEvent(CreateTodoEvent.ReminMeOnDelete(timestamp))
     }
 
     sealed class ValidationEvent {

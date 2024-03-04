@@ -5,4 +5,7 @@
     <string name="fab_add">"Add"</string>
     <string name="web_client_id">1013829168041-fdv6uiabbo8j7jasi3ji9m7jo0tonmdh.apps.googleusercontent.com</string>
     <string name="add_button">add button\n</string>
+    <string name="icon_edit">Icon edit</string>
+    <string name="icon_clear">Icon clear</string>
+    <string name="remind_me_on">Remind me on</string>
 </resources>
