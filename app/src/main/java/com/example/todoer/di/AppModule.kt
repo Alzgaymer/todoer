@@ -14,5 +14,4 @@ object AppModule {
 
     @Provides
     fun provideFireStore(): FirebaseFirestore = Firebase.firestore
-
 }

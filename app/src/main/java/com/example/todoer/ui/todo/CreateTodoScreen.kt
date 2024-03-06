@@ -1,13 +1,11 @@
 package com.example.todoer.ui.todo
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +25,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -42,11 +41,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,65 +55,60 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.todoer.R
 import com.example.todoer.platform.repositories.todo.toLocalDateTime
 import com.example.todoer.ui.TodoerAppTopBar
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTodoScreen(
-    selectedDate: LocalDate,
-    viewModel: CreateTodoViewModel = hiltViewModel(),
-    onBackButton: () -> Unit
+    uiState: CreateTodoFormState,
+    onMapNavigate: () -> Unit,
+    onBackButton: () -> Unit,
+    onPayloadChange: (String) -> Unit,
+    onStartTimeChange: (Int, Int) -> Unit,
+    onEndTimeChange: (Int, Int) -> Unit,
+    onSubmitEvent: () -> Unit,
+    onRemindmeOnValueChange: (Int, Int) -> Unit,
+    onRemindmeOnDelete: (Timestamp) -> Unit
 ) {
-    val state = viewModel.state.copy(selectedDate = selectedDate)
-    val context = LocalContext.current
-
-    LaunchedEffect(key1 = context) {
-        viewModel.validationEvents.collect{ event ->
-            when (event) {
-                is CreateTodoViewModel.ValidationEvent.Success -> {
-                    Toast.makeText(context,"Todo created!", Toast.LENGTH_LONG).show()
-                    onBackButton()
-                }
-            }
-        }
-    }
-
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    Scaffold (
-        topBar = { TodoerAppTopBar(
-            canNavigateBack = true,
-            navigateUp = onBackButton,
-            scrollBehavior = scrollBehavior
-        )},
-        floatingActionButton = { FloatingActionButton(onClick = viewModel::submitEvent) {
-            Icon(imageVector = Icons.Filled.Check, contentDescription = null)
-        }},
+    Scaffold(
+        topBar = {
+            TodoerAppTopBar(
+                canNavigateBack = true,
+                navigateUp = onBackButton,
+                scrollBehavior = scrollBehavior
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onSubmitEvent) {
+                Icon(imageVector = Icons.Filled.Check, contentDescription = null)
+            }
+        },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { contentPadding ->
         TodoForm(
-            state = state,
-            payloadValueChange = viewModel::payloadChange,
-            startDateValueChange = viewModel::startTimeChange,
-            endDateValueChange = viewModel::endTimeChange,
-            remindMeOnValueChange = viewModel::remindmeOnValueChange,
-            remindMeOnDeleteValue = viewModel::remindmeOnDelete,
+            state = uiState,
+            onMapNavigate = onMapNavigate,
+            payloadValueChange = onPayloadChange,
+            startDateValueChange = onStartTimeChange,
+            endDateValueChange = onEndTimeChange,
+            remindMeOnValueChange = onRemindmeOnValueChange,
+            remindMeOnDeleteValue = onRemindmeOnDelete,
             contentPadding = contentPadding
         )
     }
 }
+
 
 val roundedCornerShape = RoundedCornerShape(10.dp)
 
@@ -122,7 +116,8 @@ val roundedCornerShape = RoundedCornerShape(10.dp)
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun TodoForm(
-    state: CreateTodoState,
+    state: CreateTodoFormState,
+    onMapNavigate: () -> Unit,
     payloadValueChange: (String) -> Unit,
     startDateValueChange: (Int,Int) -> Unit,
     endDateValueChange: (Int,Int) -> Unit,
@@ -131,7 +126,6 @@ fun TodoForm(
     contentPadding: PaddingValues
 ) {
     Column {
-        // TODO: write text "Create TODO"  https://proandroiddev.com/creating-a-form-using-jetpack-compose-and-material-design-6e18bc63b3d1
         // Payload
         OutlinedTextField(
             value = state.payload,
@@ -310,6 +304,35 @@ fun TodoForm(
                 }
             }
         }
+        //Location
+        TextField(
+            value = "${state.location.latitude}, ${state.location.longitude}",
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { LocationIconButton{
+                onMapNavigate()
+            } },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        )
+
+    }
+}
+
+@Composable
+fun LocationIconButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.LocationOn,
+            contentDescription = null
+        )
     }
 }
 
@@ -322,11 +345,14 @@ private fun TodoTimePickerField(
 ) {
 
     var visibleTimePicker by remember { mutableStateOf(false) }
-    OutlinedTextField(
+    TextField(
         value = timestamp.toLocalDateTime(dateTimeFormatter),
         onValueChange = {},
         label = { Text(text) },
         readOnly = true,
+        trailingIcon = { EditIconButton {
+            visibleTimePicker = true
+        }},
         isError = error != null,
         supportingText = {OnFieldError(error = error)},
         modifier = Modifier
@@ -334,10 +360,7 @@ private fun TodoTimePickerField(
             .padding(
                 start = 10.dp,
                 end = 10.dp
-            )
-            .clickable {
-                visibleTimePicker = true
-            },
+            ),
     )
 
     TodoTimePicker(
@@ -348,6 +371,13 @@ private fun TodoTimePickerField(
             onTimeChanged(hours, minutes)
         }
     )
+}
+
+@Composable
+fun EditIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(imageVector = Icons.Outlined.Edit, contentDescription = null)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

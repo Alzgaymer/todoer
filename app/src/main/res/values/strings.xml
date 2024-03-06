@@ -8,4 +8,5 @@
     <string name="icon_edit">Icon edit</string>
     <string name="icon_clear">Icon clear</string>
     <string name="remind_me_on">Remind me on</string>
+    <string name="location">Location</string>
 </resources>

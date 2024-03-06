@@ -1,8 +1,7 @@
 package com.example.todoer.ui.todo
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todoer.domain.todo.Todo
@@ -11,11 +10,15 @@ import com.example.todoer.domain.validation.ValidateEndDate
 import com.example.todoer.domain.validation.ValidatePayload
 import com.example.todoer.domain.validation.ValidateRemindMeOn
 import com.example.todoer.domain.validation.ValidateStartDate
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.TimeZone
 import javax.inject.Inject
@@ -25,13 +28,15 @@ import javax.inject.Named
 class CreateTodoViewModel @Inject constructor(
     @Named("userID") private val userID: String?,
     private val todoesRepository: TodoesRepository,
+    private val savedStateHandle: SavedStateHandle,
     private val validatePayload: ValidatePayload = ValidatePayload(),
     private val validateStartDate: ValidateStartDate = ValidateStartDate(),
     private val validateEndDate: ValidateEndDate = ValidateEndDate(),
     private val validateRemindMeOn: ValidateRemindMeOn = ValidateRemindMeOn(),
 ) : ViewModel() {
 
-    var state by mutableStateOf(CreateTodoState())
+    private var _state = MutableStateFlow(CreateTodoFormState())
+    val state: StateFlow<CreateTodoFormState> = _state
 
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvents = validationEventChannel.receiveAsFlow()
@@ -40,9 +45,9 @@ class CreateTodoViewModel @Inject constructor(
         val calendar = Calendar.getInstance()
 
         calendar.set(
-            /* year = */ state.selectedDate.year,
-            /* month = */ state.selectedDate.monthValue-1, // -1 because month value start from 0 not 1
-            /* date = */ state.selectedDate.dayOfMonth,
+            /* year = */ _state.value.selectedDate.year,
+            /* month = */ _state.value.selectedDate.monthValue-1, // -1 because month value start from 0 not 1
+            /* date = */ _state.value.selectedDate.dayOfMonth,
             /* hourOfDay = */ hours,
             /* minute = */ minutes)
         calendar.timeZone = TimeZone.getTimeZone("UTC")
@@ -53,37 +58,54 @@ class CreateTodoViewModel @Inject constructor(
     fun onEvent(event: CreateTodoEvent) {
         when (event) {
             is CreateTodoEvent.EndTimeChanged -> {
-                state = state.copy(
+                _state.value =
+                    _state.value.copy(
                     endDate = mapTimestamp(event.hours, event.minutes)
                 )
             }
 
-            is CreateTodoEvent.PayloadChanged -> state = state.copy(payload = event.payload)
+            is CreateTodoEvent.PayloadChanged ->
+                _state.value =
+                    _state.value.copy(payload = event.payload)
             is CreateTodoEvent.RemindMeOnChanged -> {
-                state = state.copy(
-                    remindMeOn = state.remindMeOn +mapTimestamp(event.hours, event.minutes))
+                _state.value =
+                    _state.value.copy(
+                    remindMeOn = _state.value.remindMeOn +mapTimestamp(event.hours, event.minutes))
             }
 
             is CreateTodoEvent.StartTimeChanged -> {
-                state = state.copy(
+                _state.value =
+                    _state.value.copy(
                     startDate = mapTimestamp(event.hours, event.minutes)
                 )
             }
-
             is CreateTodoEvent.Submit -> submit()
             is CreateTodoEvent.ReminMeOnDelete -> {
-                state = state.copy(remindMeOn = state.remindMeOn - event.timestamp)
+                _state.value =
+                    _state.value.copy(remindMeOn = _state.value.remindMeOn - event.timestamp)
             }
+            is CreateTodoEvent.DateChanged -> {
+                _state.value =
+                    _state.value.copy(selectedDate = event.date) }
+
+            is CreateTodoEvent.LatitudeChanged ->
+                _state.value =
+                    _state.value.copy(
+                        location = LatLng(event.latitude, _state.value.location.longitude))
+            is CreateTodoEvent.LongitudeChanged ->
+                _state.value =
+                    _state.value.copy(
+                        location = LatLng(_state.value.location.latitude,event.longitude))
         }
     }
 
     // TODO: create function to delete reminds me on
     // FIXME: validate remind me on dates
     private fun submit() {
-        val payloadResult = validatePayload.validate(state.payload)
-        val startDateResult = validateStartDate.validate(state.startDate, state.endDate)
-        val endDateResult = validateEndDate.validate(state.startDate, state.endDate)
-        val remindMeOnResult = validateRemindMeOn.validate(state.remindMeOn, state.startDate)
+        val payloadResult = validatePayload.validate(_state.value.payload)
+        val startDateResult = validateStartDate.validate(_state.value.startDate, _state.value.endDate)
+        val endDateResult = validateEndDate.validate(_state.value.startDate, _state.value.endDate)
+        val remindMeOnResult = validateRemindMeOn.validate(_state.value.remindMeOn, _state.value.startDate)
 
         val hasError = listOf(
             payloadResult,
@@ -94,7 +116,7 @@ class CreateTodoViewModel @Inject constructor(
 
         when(hasError) {
              true -> {
-                state = state.copy(
+                _state.value = _state.value.copy(
                     payloadError = payloadResult.error,
                     startDateError = startDateResult.error,
                     endDateError = endDateResult.error,
@@ -106,10 +128,11 @@ class CreateTodoViewModel @Inject constructor(
                     validationEventChannel.send(ValidationEvent.Success)
                     todoesRepository.setTodo(userID ?: "", Todo(
                         userID = userID ?: "",
-                        startDateTime = state.startDate,
-                        endDateTime = state.endDate,
-                        remindMeOn = state.remindMeOn,
-                        payload = state.payload,
+                        startDateTime = _state.value.startDate,
+                        endDateTime = _state.value.endDate,
+                        remindMeOn = _state.value.remindMeOn,
+                        payload = _state.value.payload,
+                        location = _state.value.location,
                         done = false
                     )
                     )
@@ -142,6 +165,19 @@ class CreateTodoViewModel @Inject constructor(
 
     fun remindmeOnDelete(timestamp: Timestamp) {
         onEvent(CreateTodoEvent.ReminMeOnDelete(timestamp))
+    }
+
+    fun latitudeChanged(latitude: Double){
+        onEvent(CreateTodoEvent.LatitudeChanged(latitude))
+    }
+
+    fun longitudeChanged(longitude: Double){
+        Log.d("longitude", longitude.toString())
+        onEvent(CreateTodoEvent.LongitudeChanged(longitude))
+    }
+
+    fun dateChanged(date: LocalDate) {
+        onEvent(CreateTodoEvent.DateChanged(date))
     }
 
     sealed class ValidationEvent {

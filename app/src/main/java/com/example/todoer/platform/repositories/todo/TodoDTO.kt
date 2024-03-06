@@ -1,6 +1,7 @@
 package com.example.todoer.platform.repositories.todo
 
 import com.example.todoer.domain.todo.Todo
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.GeoPoint
 import java.time.Instant
@@ -19,6 +20,10 @@ data class TodoDTO(
     var location: GeoPoint? = null,
     var done: Boolean? = false
 )
+
+fun GeoPoint?.toLatLng(): LatLng = if (this == null) LatLng(0.0, 0.0)
+        else  LatLng(latitude, longitude)
+
 
 fun Timestamp.toLocalDate(): LocalDate =
      this.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
@@ -44,7 +49,7 @@ fun TodoDTO.toTodo(): Todo {
         endDateTime = endDate?: throw Exception("failed to parse end date"),
         remindMeOn = remindMeOn ?: emptyList(),
         payload = payload ?: "",
-        //Location()
+        location = location.toLatLng(),
         done = done?: false
     )
 }

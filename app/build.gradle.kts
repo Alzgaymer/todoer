@@ -85,6 +85,15 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     kapt(libs.hilt.compiler)
     implementation (libs.hilt.navigation.compose)
+
+    implementation (libs.maps.compose)
+
+    // Optionally, you can include the Compose utils library for Clustering,
+    // Street View metadata checks, etc.
+    implementation (libs.maps.compose.utils)
+
+    // Optionally, you can include the widgets library for ScaleBar, etc.
+    implementation (libs.maps.compose.widgets)
 }
 
 kapt {

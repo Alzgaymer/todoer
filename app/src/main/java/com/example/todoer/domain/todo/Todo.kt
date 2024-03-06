@@ -1,6 +1,8 @@
 package com.example.todoer.domain.todo
 
 import com.example.todoer.platform.repositories.todo.toLocalDateTime
+import com.example.todoer.ui.map.toGeoPoint
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import java.time.format.DateTimeFormatter
 
@@ -11,7 +13,7 @@ data class Todo (
     var endDateTime: Timestamp,
     var remindMeOn: List<Timestamp>,
     var payload: String,
-   // var location: Location?,
+    var location: LatLng,
     var done: Boolean
 )
 
@@ -21,6 +23,7 @@ fun Todo.toHashMap(): HashMap<String, Any> = hashMapOf(
     "endDate" to endDateTime,
     "remindMeOn" to remindMeOn,
     "payload" to payload,
+    "location" to location.toGeoPoint(),
     "done" to done,
 )
 

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,7 +22,11 @@ import com.example.todoer.domain.auth.AuthClient
 import com.example.todoer.ui.auth.SignInScreen
 import com.example.todoer.ui.auth.SignInViewModel
 import com.example.todoer.ui.calendar.WeekCalendarScreen
+import com.example.todoer.ui.map.MapScreen
+import com.example.todoer.ui.map.MapViewModel
 import com.example.todoer.ui.todo.CreateTodoScreen
+import com.example.todoer.ui.todo.CreateTodoViewModel
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -87,18 +92,52 @@ fun TodoerNavHost(
             )
         }
 
-
         composable(Screens.WeekCalendar.route) {
             WeekCalendarScreen(navController = navController)
         }
 
         composable(Screens.CreateTodo.route) { backStackEntry ->
+
+            val viewModel: CreateTodoViewModel = hiltViewModel()
+            val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+            backStackEntry.savedStateHandle.getLiveData<Double>("longitude")
+                .observeForever { viewModel.longitudeChanged(it) }
+            backStackEntry.savedStateHandle.getLiveData<Double>("latitude")
+                .observeForever { viewModel.latitudeChanged(it) }
+
             val dateStr = backStackEntry.arguments?.getString("date")
             val date = LocalDate.parse(dateStr)
+            viewModel.dateChanged(date)
+
             CreateTodoScreen(
-                date,
-                onBackButton = navController::navigateToCalendar
+                uiState = uiState,
+                onMapNavigate =  { navController.navigateToMap(LatLng(0.0,0.0)) },
+                onBackButton = navController::navigateToCalendar,
+                onPayloadChange = viewModel::payloadChange,
+                onStartTimeChange = viewModel::startTimeChange,
+                onEndTimeChange = viewModel::endTimeChange,
+                onSubmitEvent = viewModel::submitEvent,
+                onRemindmeOnValueChange = viewModel::remindmeOnValueChange,
+                onRemindmeOnDelete = viewModel::remindmeOnDelete
             )
+        }
+
+        composable(Screens.Map.route) { stack ->
+            val viewModel: MapViewModel = hiltViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+
+
+            MapScreen(state, navigateUp = {navController.navigateUp()},
+            onLongClick = {viewModel.deleteLocation()}
+            ) {
+                navController.previousBackStackEntry
+                    ?.savedStateHandle?.set("latitude", it.latitude)
+                navController.previousBackStackEntry
+                    ?.savedStateHandle?.set("longitude", it.longitude)
+
+                viewModel.setLocation(it.latitude, it.longitude)
+            }
         }
     }
 }
@@ -108,3 +147,6 @@ private fun NavHostController.navigateToCalendar() =
 
 fun NavHostController.navigateToCreateToDo(date: LocalDate) =
     this.navigate(Screens.CreateTodo.createRoute(date))
+
+private fun NavHostController.navigateToMap(latLng: LatLng) =
+    this.navigate(Screens.Map.createRoute(latLng))

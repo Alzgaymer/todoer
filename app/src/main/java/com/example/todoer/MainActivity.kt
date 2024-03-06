@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.example.todoer.domain.auth.AuthClient
 import com.example.todoer.ui.theme.TodoerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +29,12 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    TodoerApp(this.applicationContext, authClient, lifecycleScope)
+                    TodoerApp(
+                        context = this.applicationContext,
+                        authClient = authClient,
+                        lifecycleScope = lifecycleScope,
+                        navHostController = rememberNavController()
+                    )
                 }
             }
         }
