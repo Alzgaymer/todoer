@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
-    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation(platform(libs.compose.bom))
     implementation("androidx.compose.material3:material3")
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.firebase.database)
@@ -69,11 +69,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.ui.test.junit4)
 
     debugImplementation(libs.ui.tooling)
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    debugImplementation(libs.ui.test.manifest)
     implementation(libs.runtime)
     implementation(libs.lifecycle.runtime.compose)
     //dependency for the navigation.

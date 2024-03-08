@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    kotlin("kapt")
+    alias(libs.plugins.daggerHilt)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -49,16 +52,43 @@ android {
 }
 
 dependencies {
+    implementation(libs.core.ktx)
+    implementation(libs.activity.compose)
+    implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
+    implementation(libs.navigation.runtime.ktx)
+    implementation(libs.firebase.database)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
+    implementation(libs.firebase.firestore)
+    implementation(libs.com.google.firebase.firebase.auth)
     implementation(libs.ui)
+
     implementation(libs.ui.tooling.preview)
     implementation(libs.compose.material)
     implementation(libs.compose.foundation)
     implementation(libs.activity.compose)
     implementation(libs.core.splashscreen)
+    implementation(libs.play.services.auth)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
+    implementation(libs.runtime)
+    implementation(libs.lifecycle.runtime.compose)
+    //dependency for the navigation.
+    implementation (libs.navigation.compose)
+
+    implementation(libs.wear.compose.foundation)
+    implementation(libs.wear.compose.material)
+    implementation(libs.wear.compose.navigation)
+    implementation(libs.horologist.compose.material)
+    implementation(libs.horologist.compose.layout)
+    implementation(libs.horologist.composables)
+
+    //hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+    kapt(libs.hilt.compiler)
+    implementation (libs.hilt.navigation.compose)
 }
