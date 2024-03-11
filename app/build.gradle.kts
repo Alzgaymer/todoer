@@ -94,6 +94,14 @@ dependencies {
 
     // Optionally, you can include the widgets library for ScaleBar, etc.
     implementation (libs.maps.compose.widgets)
+
+    // wear
+    implementation(libs.play.services.wearable)
+
+    // coroutines
+
+    implementation(libs.kotlinx.coroutines.android)
+//    implementation(libs.kotlinx.coroutines.play.services)
 }
 
 kapt {

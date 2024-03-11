@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,8 +106,9 @@ fun WeekCalendarScreen(
             )},
             weekFooter = { Todos(
                 todos = todoes,
-                viewModel.selection in viewModel.visibleWeek,
-                viewModel.selection
+                visible = viewModel.selection in viewModel.visibleWeek,
+                selectedDay = viewModel.selection,
+                onSend = viewModel::sendTodoes
             ) },
             contentPadding = paddingValues,
         )
@@ -175,12 +177,16 @@ fun selection(isSelected: Boolean) = when (isSelected) {
 }
 
 @Composable
-fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate) {
+fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate, onSend: (List<Todo>) -> Unit) {
     if (!visible) return
 
     val filtered = todos.filter {
         it.startDateTime.toLocalDate().atStartOfDay() == selectedDay.atStartOfDay()
     }.sortedBy { it.startDateTime }
+
+    LaunchedEffect(key1 = filtered) {
+        onSend(filtered)
+    }
 
     LazyColumn{
         items(items = filtered, key = {todo -> todo.startDateTime}) { todo ->
@@ -189,6 +195,7 @@ fun Todos(todos: List<Todo>, visible: Boolean,  selectedDay: LocalDate) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Todo(todo: Todo) {
     Card(

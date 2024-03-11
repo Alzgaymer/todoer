@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material.Text
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.ScreenScaffold
@@ -19,13 +18,9 @@ import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
-fun DayTodoes(text: String) {
+fun DayTodoes(uiState: DailyTodoesUiState) {
     val scrollState = ScrollState(0)
 
-    /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-     * version of LazyColumn for wear devices with some added features. For more information,
-     * see d.android.com/wear/compose.
-     */
     ScreenScaffold(scrollState = scrollState) {
         val padding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
@@ -40,7 +35,7 @@ fun DayTodoes(text: String) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = text)
+
         }
     }
 }
@@ -49,5 +44,5 @@ fun DayTodoes(text: String) {
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND)
 @Composable
 fun PreviewDayTodoes() {
-    DayTodoes(text = "Hello")
+    DayTodoes(DailyTodoesUiState())
 }

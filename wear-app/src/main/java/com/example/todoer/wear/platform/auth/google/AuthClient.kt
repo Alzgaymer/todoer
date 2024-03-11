@@ -19,7 +19,7 @@ class GoogleAuthClient(
     context: Context
 ) : AuthClient() {
 
-    private var user: User? = null
+    override var user: User? = null
 
     private val client = GoogleSignIn.getClient(
         /* context = */context,

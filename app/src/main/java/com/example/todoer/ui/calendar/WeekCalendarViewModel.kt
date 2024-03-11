@@ -12,6 +12,7 @@ import com.example.todoer.domain.calendar.core.WeekDayPosition
 import com.example.todoer.domain.calendar.core.firstDayOfWeekFromLocale
 import com.example.todoer.domain.todo.Todo
 import com.example.todoer.domain.todo.TodoesRepository
+import com.example.todoer.domain.watch.todo.SendTodoService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,8 +35,9 @@ import javax.inject.Named
 @HiltViewModel
 class WeekCalendarViewModel @Inject constructor(
     @Named("userID") private val userID: String?,
-    private val todoesRepository: TodoesRepository
-): ViewModel() {
+    private val todoesRepository: TodoesRepository,
+    private val sendTodoService: SendTodoService,
+): ViewModel(){
 
     val currentDate by mutableStateOf(LocalDate.now())
     val startDate by mutableStateOf(currentDate.minusDays(500))
@@ -65,6 +67,12 @@ class WeekCalendarViewModel @Inject constructor(
                         _todoes.emit(it)
                     }
                 }
+        }
+    }
+
+    fun sendTodoes(list: List<Todo>) {
+        viewModelScope.launch {
+            sendTodoService.send(list)
         }
     }
 

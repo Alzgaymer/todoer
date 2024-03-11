@@ -4,7 +4,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import com.example.todoer.wear.domain.user.User
 
 abstract class AuthClient : ActivityResultContract<Unit, SignInResult>() {
-    private val user: User? = null
+    abstract val user: User?
 
     abstract fun getSignedInUser(): User?
 

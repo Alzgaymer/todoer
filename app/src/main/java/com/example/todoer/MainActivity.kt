@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.todoer.domain.auth.AuthClient
 import com.example.todoer.ui.theme.TodoerTheme
+import com.google.android.gms.wearable.CapabilityClient
+import com.google.android.gms.wearable.MessageClient
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -20,6 +22,12 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var authClient: AuthClient
+
+    @Inject
+    lateinit var messageClient: MessageClient
+
+    @Inject
+    lateinit var capabilityClient: CapabilityClient
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {

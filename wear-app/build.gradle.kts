@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.com.google.firebase.firebase.auth)
     implementation(libs.ui)
-
     implementation(libs.ui.tooling.preview)
     implementation(libs.compose.material)
     implementation(libs.compose.foundation)
@@ -81,10 +80,18 @@ dependencies {
 
     implementation(libs.wear.compose.foundation)
     implementation(libs.wear.compose.material)
+    implementation(libs.wear.compose.ui)
     implementation(libs.wear.compose.navigation)
     implementation(libs.horologist.compose.material)
     implementation(libs.horologist.compose.layout)
     implementation(libs.horologist.composables)
+
+    implementation (libs.maps.compose)
+
+    // Optionally, you can include the Compose utils library for Clustering,
+    // Street View metadata checks, etc.
+    implementation (libs.maps.compose.utils)
+
 
     //hilt
     implementation(libs.hilt.android)
