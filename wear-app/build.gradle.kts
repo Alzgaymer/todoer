@@ -92,6 +92,9 @@ dependencies {
     // Street View metadata checks, etc.
     implementation (libs.maps.compose.utils)
 
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.kotlinx.coroutines.core)
 
     //hilt
     implementation(libs.hilt.android)

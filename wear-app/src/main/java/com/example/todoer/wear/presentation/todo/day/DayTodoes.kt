@@ -1,41 +1,36 @@
 package com.example.todoer.wear.presentation.todo.day
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
-import com.google.android.horologist.compose.layout.ScreenScaffold
-import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
+import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Text
+import com.example.todoer.wear.domain.todo.Todo
 
-@OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun DayTodoes(uiState: DailyTodoesUiState) {
     val scrollState = ScrollState(0)
 
-    ScreenScaffold(scrollState = scrollState) {
-        val padding = ScalingLazyColumnDefaults.padding(
-            first = ScalingLazyColumnDefaults.ItemType.Text,
-            last = ScalingLazyColumnDefaults.ItemType.Chip
-        )()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .rotaryWithScroll(scrollState)
-                .padding(padding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    val empty by remember {
+        derivedStateOf {
+            uiState.list.isEmpty()
+        }
+    }
 
+    Scaffold() {
+        when (empty) {
+            true -> {EmptyScreen()}
+            else -> {Todoes(todoes = uiState.list)}
         }
     }
 }
@@ -45,4 +40,24 @@ fun DayTodoes(uiState: DailyTodoesUiState) {
 @Composable
 fun PreviewDayTodoes() {
     DayTodoes(DailyTodoesUiState())
+}
+
+@Composable
+fun EmptyScreen() {
+    Row (verticalAlignment = Alignment.CenterVertically) {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "No todoes for today",
+                modifier = Modifier.padding( top =  30.dp, start =  20.dp))
+      }
+    }
+}
+
+@Composable
+fun Todoes(todoes: List<Todo>) {
+    Row (verticalAlignment = Alignment.CenterVertically) {
+       Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "There are some todoes for today",
+                modifier = Modifier.padding(top =  30.dp, start =  20.dp))
+       }
+    }
 }

@@ -21,51 +21,7 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.AppScaffold
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun TodoerNavGraph(authClient: AuthClient, lifecycleScope: LifecycleCoroutineScope,  navController: NavHostController) {
-    TodoerTheme {
-        AppScaffold {
-            NavHost(navController = navController, startDestination = Screens.Auth.route) {
-                composable(Screens.Main.route) {
-                    val viewModel: DayViewModel = hiltViewModel()
-                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-                    DayTodoes(uiState)
-                }
-
-                composable(Screens.Auth.route) {
-                    val viewModel: LogInViewModel = hiltViewModel()
-                    val state by viewModel.state.collectAsStateWithLifecycle()
-
-                    LaunchedEffect(key1 = Unit) {
-                        if (authClient.getSignedInUser() != null) {
-                            navController.navigate(Screens.Main.route)
-                        }
-                    }
-
-                    val launcher = rememberLauncherForActivityResult(
-                        contract = authClient,
-                    ) { result: SignInResult ->
-                        lifecycleScope.launch {
-                            viewModel.onSignInResult(result)
-                        }
-                    }
-
-                    LaunchedEffect(key1 = state.isSignInSuccessful) {
-                        if (state.isSignInSuccessful) {
-                            navController.navigate(Screens.Main.route)
-                            viewModel.resetState()
-                        }
-                    }
-
-                    LogInScreen(state = state) {
-                        lifecycleScope.launch {
-                            launcher.launch(Unit)
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

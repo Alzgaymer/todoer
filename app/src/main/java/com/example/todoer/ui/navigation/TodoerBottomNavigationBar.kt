@@ -5,9 +5,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
@@ -27,15 +30,6 @@ fun TodoerBottomNavigationBar(navController: NavHostController) {
         getBottomNavigationItems().forEachIndexed { index, navigationItem ->
             //iterating all items with their respective indexes
             NavigationBarItem(
-                colors = NavigationBarItemColors(
-                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    selectedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    disabledIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedIconColor = MaterialTheme.colorScheme.onBackground,
-                    unselectedTextColor = MaterialTheme.colorScheme.onBackground,
-                ),
                 selected = index == navigationSelectedItem,
                 label = {
                     Text(navigationItem.title)

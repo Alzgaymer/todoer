@@ -55,3 +55,12 @@ private fun JSONArray.toTimestampList(): List<Timestamp>  =
         e.printStackTrace()
         emptyList()
     }
+
+fun mapTodoes(json: JSONArray): List<Todo> {
+    val list = mutableListOf<Todo>()
+    for (i in 0 until json.length()){
+        val todo = json.getJSONObject(i).toTodo()
+        list.add(todo)
+    }
+    return list
+}

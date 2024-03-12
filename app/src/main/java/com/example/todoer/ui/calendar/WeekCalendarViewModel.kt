@@ -66,16 +66,13 @@ class WeekCalendarViewModel @Inject constructor(
                     withContext(Dispatchers.Main) {
                         _todoes.emit(it)
                     }
+                    withContext(Dispatchers.IO) {
+                        sendTodoService.startWearableActivity()
+                        sendTodoService.send(it)
+                    }
                 }
         }
     }
-
-    fun sendTodoes(list: List<Todo>) {
-        viewModelScope.launch {
-            sendTodoService.send(list)
-        }
-    }
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekTitle: Flow<String> =
@@ -87,6 +84,12 @@ class WeekCalendarViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = "",
             )
+
+    fun sendTodoes(list: List<Todo>) {
+        viewModelScope.launch {
+            sendTodoService.send(list)
+        }
+    }
 
     fun chooseDay(clicked: LocalDate) {
         if (selection != clicked) {

@@ -21,6 +21,7 @@ object ServiceModule {
     }
 }
 
+
 @Module
 @InstallIn(ServiceComponent::class)
 object ForService {
