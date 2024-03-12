@@ -67,7 +67,6 @@ class WeekCalendarViewModel @Inject constructor(
                         _todoes.emit(it)
                     }
                     withContext(Dispatchers.IO) {
-                        sendTodoService.startWearableActivity()
                         sendTodoService.send(it)
                     }
                 }

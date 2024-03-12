@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
@@ -21,14 +18,8 @@ import com.example.todoer.wear.domain.todo.Todo
 fun DayTodoes(uiState: DailyTodoesUiState) {
     val scrollState = ScrollState(0)
 
-    val empty by remember {
-        derivedStateOf {
-            uiState.list.isEmpty()
-        }
-    }
-
     Scaffold() {
-        when (empty) {
+        when (uiState.list.isEmpty()) {
             true -> {EmptyScreen()}
             else -> {Todoes(todoes = uiState.list)}
         }

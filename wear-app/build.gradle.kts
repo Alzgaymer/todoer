@@ -4,6 +4,8 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.daggerHilt)
     id("com.google.gms.google-services")
+    alias(libs.plugins.serialization)
+    
 }
 
 android {
@@ -11,7 +13,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.todoer.wear"
+        applicationId = "com.example.todoer"
         minSdk = 30
         targetSdk = 34
         versionCode = 1
@@ -101,4 +103,7 @@ dependencies {
     kapt(libs.hilt.android.compiler)
     kapt(libs.hilt.compiler)
     implementation (libs.hilt.navigation.compose)
+
+    implementation(libs.kotlinx.serialization.json)
+
 }

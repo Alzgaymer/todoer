@@ -4,8 +4,6 @@ import com.example.todoer.platform.repositories.todo.toLocalDateTime
 import com.example.todoer.ui.map.toGeoPoint
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
-import org.json.JSONObject
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
@@ -18,32 +16,6 @@ data class Todo (
     var location: LatLng,
     var done: Boolean
 )
-
-fun Todo.toJSON(): JSONObject {
-    val jsonObject = JSONObject().apply {
-        put("userID", userID)
-        put(
-            "startDateTime",
-            startDateTime.toLocalDateTime().toEpochSecond(ZoneOffset.UTC)
-        ) // Convert Timestamp to milliseconds
-        put(
-            "endDateTime",
-            endDateTime.toLocalDateTime().toEpochSecond(ZoneOffset.UTC)
-        ) // Convert Timestamp to milliseconds
-        put(
-            "remindMeOn",
-            remindMeOn.map {
-                it.toLocalDateTime().toEpochSecond(ZoneOffset.UTC)
-            }) // Convert List<Timestamp> to List<Long> of milliseconds
-        put("payload", payload)
-        put("location", JSONObject().apply {
-            put("latitude", location.latitude)
-            put("longitude", location.longitude)
-        })
-        put("done", done)
-    }
-    return jsonObject
-}
 
 fun Todo.toHashMap(): HashMap<String, Any> = hashMapOf(
     "userID" to userID,

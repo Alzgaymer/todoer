@@ -3,7 +3,7 @@ package com.example.todoer.platform.service.watch.todo
 
 import android.util.Log
 import com.example.todoer.domain.todo.Todo
-import com.example.todoer.domain.todo.toJSON
+import com.example.todoer.domain.todo.serialize.TodoListSerializer
 import com.example.todoer.domain.watch.todo.SendTodoService
 import com.example.todoer.domain.watch.todo.SendTodoService.PATHS.DAILY_TODOES
 import com.google.android.gms.wearable.CapabilityClient
@@ -14,7 +14,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class SendTodoServiceImpl @Inject constructor(
@@ -27,12 +27,11 @@ class SendTodoServiceImpl @Inject constructor(
 
     override suspend fun send(list: List<Todo>): Unit = withContext(Dispatchers.IO) {
         try {
-            val json = list.toJSON()
+            val json = Json.encodeToString(serializer = TodoListSerializer, value = list)
             val request = PutDataMapRequest.create(DAILY_TODOES).apply {
-                dataMap.putByteArray("todoes", json)
+                dataMap.putString("todoes", json)
             }
                 .asPutDataRequest()
-                .setUrgent()
 
             val result = dataClient.putDataItem(request).await()
 
@@ -44,11 +43,5 @@ class SendTodoServiceImpl @Inject constructor(
 
     }
 
-    private fun List<Todo>.toJSON(): ByteArray {
-        val jsonArray = JSONArray()
-        forEach { todo: Todo ->
-            jsonArray.put(todo.toJSON())
-        }
-        return jsonArray.toString().toByteArray()
-    }
+
 }

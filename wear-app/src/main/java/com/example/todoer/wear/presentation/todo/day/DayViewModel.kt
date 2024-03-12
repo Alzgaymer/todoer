@@ -1,12 +1,17 @@
 package com.example.todoer.wear.presentation.todo.day
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.todoer.wear.domain.auth.AuthClient
+import com.example.todoer.wear.platform.repository.todo.list
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +30,16 @@ class DayViewModel @Inject constructor(
             DailyTodoesUiState(
                 userID = authClient.user?.userID ?: DailyTodoesUiState.NO_USER
             )
+        }
+    }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            list.collect {
+                withContext(Dispatchers.Main) {
+                    updateState(DailyTodoesUiState(list = it))
+                }
+            }
         }
     }
 

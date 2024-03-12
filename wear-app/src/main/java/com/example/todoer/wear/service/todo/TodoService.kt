@@ -1,47 +1,45 @@
 package com.example.todoer.wear.service.todo
 
-import android.content.Intent
 import android.util.Log
-import com.example.todoer.wear.presentation.MainActivity
+import com.example.todoer.domain.todo.serialize.TodoListSerializer
+import com.example.todoer.wear.platform.repository.todo.add
 import com.google.android.gms.wearable.DataEventBuffer
-import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import javax.inject.Inject
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 
-class TodoService @Inject constructor () : WearableListenerService() {
+class TodoService : WearableListenerService() {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-
-    override fun onDataChanged(p0: DataEventBuffer) {
-        super.onDataChanged(p0)
-        Log.d("TodoService", "data changed")
-    }
-
-    override fun onMessageReceived(messageEvent: MessageEvent) {
-        super.onMessageReceived(messageEvent)
-
-        when (messageEvent.path) {
-            START_ACTIVITY_PATH -> {
-                startActivity(
-                    Intent(this, MainActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            }
-        }
+    override fun onCreate() {
+        super.onCreate()
+        Log.d(TAG, "$TAG created")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        scope.cancel()
+        Log.d(TAG, "$TAG destroyed")
     }
+
+    override fun onDataChanged(events: DataEventBuffer) {
+        super.onDataChanged(events)
+
+        events.map { it.dataItem}
+            .forEach { item ->
+                when(item.uri.path) {
+                    DAILY_TODOES -> {
+                        val mapItem = DataMapItem.fromDataItem(item)
+                        val json = mapItem.dataMap.getString("todoes")
+                        val list = Json.decodeFromString(
+                            deserializer = TodoListSerializer, json?: throw SerializationException())
+                        add(list)
+                    }
+                }
+            }
+    }
+
     companion object {
-        private const val TAG = "TodoService"
-        private const val START_ACTIVITY_PATH = "/start-activity"
-        private const val DATA_ITEM_RECEIVED_PATH = "/data-item-received"
         const val DAILY_TODOES = "/daily-todoes"
+        private const val TAG = "TodoService"
     }
 }

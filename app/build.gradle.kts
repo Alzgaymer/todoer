@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.daggerHilt)
     id("com.google.gms.google-services")
+    alias(libs.plugins.serialization)
 }
 
 android {
@@ -103,6 +104,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
 
 }
 

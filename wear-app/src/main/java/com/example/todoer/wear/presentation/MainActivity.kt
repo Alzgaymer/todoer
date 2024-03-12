@@ -1,11 +1,9 @@
 package com.example.todoer.wear.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -23,28 +21,16 @@ import com.example.todoer.wear.presentation.auth.LogInViewModel
 import com.example.todoer.wear.presentation.theme.TodoerTheme
 import com.example.todoer.wear.presentation.todo.day.DayTodoes
 import com.example.todoer.wear.presentation.todo.day.DayViewModel
-import com.example.todoer.wear.service.todo.TodoService
-import com.google.android.gms.wearable.DataClient
-import com.google.android.gms.wearable.DataEventBuffer
-import com.google.android.gms.wearable.Wearable
 import com.google.android.horologist.compose.layout.AppScaffold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(),
-DataClient.OnDataChangedListener {
-
-    private val dataClient by lazy { Wearable.getDataClient(this) }
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var authClient: AuthClient
-
-    @Inject
-    lateinit var todoService: TodoService
-
-    private val dayViewModel: DayViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -59,7 +45,7 @@ DataClient.OnDataChangedListener {
                 AppScaffold {
                     NavHost(navController = navController, startDestination = Screens.Main.route) {
                         composable(Screens.Main.route) {
-
+                            val dayViewModel: DayViewModel = hiltViewModel()
                             val uiState by dayViewModel.uiState.collectAsStateWithLifecycle()
 
                             DayTodoes(uiState)
@@ -100,23 +86,5 @@ DataClient.OnDataChangedListener {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dataClient.addListener(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        dataClient.removeListener(this)
-    }
-
-    override fun onDataChanged(events: DataEventBuffer) {
-        events.map { it.dataItem}
-            .forEach { item ->
-                Log.d("P", item.data.toString())
-                //on collect update ui state
-            }
     }
 }
