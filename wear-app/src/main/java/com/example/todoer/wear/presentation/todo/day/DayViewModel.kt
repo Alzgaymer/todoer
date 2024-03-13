@@ -3,7 +3,7 @@ package com.example.todoer.wear.presentation.todo.day
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todoer.wear.domain.auth.AuthClient
-import com.example.todoer.wear.platform.repository.todo.list
+import com.example.todoer.wear.platform.repository.todo.TodoesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +35,7 @@ class DayViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            list.collect {
+            TodoesRepository.list.collect {
                 withContext(Dispatchers.Main) {
                     updateState(DailyTodoesUiState(list = it))
                 }

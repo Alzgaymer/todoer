@@ -6,10 +6,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-private val _list: MutableStateFlow<List<Todo>> = MutableStateFlow(emptyList())
-val list: StateFlow<List<Todo>> = _list.asStateFlow()
+object TodoesRepository {
+    private val _list: MutableStateFlow<List<Todo>> = MutableStateFlow(emptyList())
+    val list: StateFlow<List<Todo>> = _list.asStateFlow()
 
 
-fun add(list: List<Todo>) {
-    _list.update { list }
+    fun add(list: List<Todo>) {
+        _list.update { list }
+    }
 }

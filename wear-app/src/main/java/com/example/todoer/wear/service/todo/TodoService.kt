@@ -2,7 +2,7 @@ package com.example.todoer.wear.service.todo
 
 import android.util.Log
 import com.example.todoer.domain.todo.serialize.TodoListSerializer
-import com.example.todoer.wear.platform.repository.todo.add
+import com.example.todoer.wear.platform.repository.todo.TodoesRepository
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.WearableListenerService
@@ -32,7 +32,7 @@ class TodoService : WearableListenerService() {
                         val json = mapItem.dataMap.getString("todoes")
                         val list = Json.decodeFromString(
                             deserializer = TodoListSerializer, json?: throw SerializationException())
-                        add(list)
+                        TodoesRepository.add(list)
                     }
                 }
             }
