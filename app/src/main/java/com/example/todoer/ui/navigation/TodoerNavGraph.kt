@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -112,7 +111,7 @@ fun TodoerNavHost(
 
             CreateTodoScreen(
                 uiState = uiState,
-                onMapNavigate =  { navController.navigateToMap(LatLng(0.0,0.0)) },
+                onMapNavigate = navController::navigateToMap ,
                 onBackButton = navController::navigateToCalendar,
                 onPayloadChange = viewModel::payloadChange,
                 onStartTimeChange = viewModel::startTimeChange,
@@ -126,7 +125,6 @@ fun TodoerNavHost(
         composable(Screens.Map.route) { stack ->
             val viewModel: MapViewModel = hiltViewModel()
             val state by viewModel.state.collectAsStateWithLifecycle()
-
 
             MapScreen(state, navigateUp = {navController.navigateUp()},
             onLongClick = {viewModel.deleteLocation()}

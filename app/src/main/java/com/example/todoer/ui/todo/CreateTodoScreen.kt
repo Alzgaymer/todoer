@@ -62,16 +62,18 @@ import androidx.compose.ui.unit.dp
 import com.example.todoer.R
 import com.example.todoer.platform.repositories.todo.toLocalDateTime
 import com.example.todoer.ui.TodoerAppTopBar
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTodoScreen(
     uiState: CreateTodoFormState,
-    onMapNavigate: () -> Unit,
+    onMapNavigate: (LatLng) -> Unit,
     onBackButton: () -> Unit,
     onPayloadChange: (String) -> Unit,
     onStartTimeChange: (Int, Int) -> Unit,
@@ -117,7 +119,7 @@ val roundedCornerShape = RoundedCornerShape(10.dp)
 @Composable
 fun TodoForm(
     state: CreateTodoFormState,
-    onMapNavigate: () -> Unit,
+    onMapNavigate: (LatLng) -> Unit,
     payloadValueChange: (String) -> Unit,
     startDateValueChange: (Int,Int) -> Unit,
     endDateValueChange: (Int,Int) -> Unit,
@@ -310,7 +312,7 @@ fun TodoForm(
             onValueChange = {},
             readOnly = true,
             trailingIcon = { LocationIconButton{
-                onMapNavigate()
+                onMapNavigate(state.location)
             } },
             modifier = Modifier
                 .fillMaxWidth()
@@ -389,7 +391,7 @@ fun TodoTimePicker(
 ) {
     val coroutineScope = rememberCoroutineScope()
     if (visible){
-        val now = LocalDateTime.now()
+        val now = LocalDateTime.now().atOffset(ZoneOffset.UTC)
         val timePickerState = rememberTimePickerState(
             initialHour = now.hour,
             initialMinute = now.minute,
