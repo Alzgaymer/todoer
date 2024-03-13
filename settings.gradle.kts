@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "todoer"
 include(":app")
- 
+include(":wear-app")
